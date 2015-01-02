@@ -19,16 +19,16 @@ module SettingAccessors
   end
 
   #
-  # @return [ActiveRecord::Base] (Email)
-  #   The class used to create new emails in the system
+  # @return [ActiveRecord::Base] (Setting)
+  #   The class used to create new Settings in the system
   #
   def self.setting_class
     self.setting_class_name.constantize
   end
 
   #
-  # @return [String] (Email)
-  #   The email class' name
+  # @return [String] (Setting)
+  #   The setting class' name
   #
   def self.setting_class_name
     @@config.setting_class.classify
