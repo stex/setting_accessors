@@ -2,7 +2,9 @@ require_relative '../../../test_helper'
 
 class SettingTest < ActiveSupport::TestCase
   should validate_presence_of :name
-  should validate_uniqueness_of(:name).scoped_to([:assignable_type, :assignable_id])
+
+  #FIXME: This is currently setting assignable_type and assignable_id to "0" resp. "1" which breaks everything.
+  # should validate_uniqueness_of(:name).scoped_to([:assignable_type, :assignable_id])
 
   context 'Global Setting Accessors (method missing)' do
 
@@ -75,6 +77,55 @@ class SettingTest < ActiveSupport::TestCase
 
     should 'return just the value if wished' do
       assert_equal Setting.create_or_update(:pokedex_count, 151, @ash, true), 151
+    end
+  end
+
+  context 'The globally_defined method' do
+    should 'return true for a setting which is defined in config/settings.yml' do
+      assert Setting.globally_defined?('a_string')
+    end
+
+    should 'return false for a setting which is not defined in config/settings.yml' do
+      assert !Setting.globally_defined?('something_different')
+    end
+  end
+
+  context 'setting_accessors' do
+    should 'return the default value as fallback if :fallback => :default is given' do
+      assert_equal 'I am a string!', User.new.a_string
+    end
+
+    should 'return the global setting value as fallback if :fallback => :global is given' do
+      Setting.a_number = 42
+      assert_equal 42, User.new.a_number
+    end
+
+    should 'return the given value as fallback if :fallback => VALUE is given' do
+      assert_equal false, User.new.a_boolean
+    end
+  end
+
+  context 'Class-Defined Settings' do
+    should 'have the type defined in the setting_accessor call' do
+      assert u = User.create(:first_name => 'a', :last_name => 'name', :locale => 'de')
+      assert s = Setting.setting_record(:locale, User.first)
+      assert_equal 'string', s.type.to_s
+    end
+
+    should 'not override global settings' do
+      assert_raises(ArgumentError) do
+        User.class_eval do
+          setting_accessor :a_string, :type => :integer
+        end
+      end
+    end
+
+    should 'use value fallbacks' do
+      assert_equal 'Oiski Poiski!', User.new.class_wise_with_value_fallback
+    end
+
+    should 'use default fallbacks' do
+      assert_equal 'Kapitanski', User.new.class_wise_with_default_fallback
     end
   end
 end

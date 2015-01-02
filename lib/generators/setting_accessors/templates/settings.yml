@@ -5,8 +5,20 @@
 # The keys are the setting names, the values are a hash
 # containing validation options, type and default value
 #
-a_string:
-  type: string
-  default: "I am a string!"
-  validations:
-    presence: true
+# Examples:
+#
+# a_string:
+#  type: string
+#  default: "I am a string!"
+#  validations:
+#    presence: true
+#
+# a_number:
+#   type: integer
+#   default: "I am a Number!"
+#
+# a_boolean:
+#   type: boolean
+#   default: true
+#   validations:
+#     boolean: true

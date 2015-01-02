@@ -1,6 +1,5 @@
 #
 # Helper class to make accessing record specific settings easier
-# To use it, please include SettingAccessors::Integration into your model
 #
 
 class SettingAccessors::Accessor
@@ -41,6 +40,14 @@ class SettingAccessors::Accessor
     self[key] || Setting.get(key)
   end
 
+  #
+  # Tries to find a setting for this record first,
+  # if none is found, it will return the given value instead.
+  #
+  def get_or_value(key, value)
+    self[key] || value
+  end
+
   protected
 
   #
@@ -51,7 +58,7 @@ class SettingAccessors::Accessor
   # Please do not call this method directly, use the IntegrationValidator
   # class instead, e.g.
   #
-  #   validates_with Stex::Settings::IntegrationValidator
+  #   validates_with SettingAccessors::IntegrationValidator
   #
   def validate!
     @temp_settings.each do |key, value|

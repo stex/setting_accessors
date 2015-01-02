@@ -5,11 +5,11 @@ module SettingAccessors::Integration
     #After the main record was saved, we can save its settings.
     #This is necessary as the record might have been a new record
     #without an ID yet
-    after_save do
+    base.after_save do
       settings.send(:persist!)
     end
 
-    extend ClassMethods
+    base.extend ClassMethods
   end
 
   module ClassMethods
@@ -23,24 +23,30 @@ module SettingAccessors::Integration
     # @param [Hash] options
     #   Options to customize the behaviour of the generated accessor
     #
-    # @option options [Symbol] :fallback (nil)
+    # @option options [Symbol, Object] :fallback (nil)
     #   If set to +:default+, the getter will return the setting's default
     #   value if no own value was specified for this record
     #
     #   If set to +:global+, the getter will try to find a global
     #   setting if no record specific setting was found
     #
-    #   Otherwise, the getter will only search for a record specific
+    #   If set to another value, this value is used by default
+    #
+    #   If not set at all or to +nil+, the getter will only search for a record specific
     #   setting and return +nil+ if none was specified previously.
     #
     def setting_accessor(setting_name, options = {})
+      fallback = options.delete(:fallback)
+
+      SettingAccessors.set_class_setting(self, setting_name, options)
+
       define_method(setting_name) do
-        if options[:fallback].to_s == 'default'
-          settings.get_or_default(setting_name)
-        elsif options[:fallback].to_s == 'global'
-          settings.get_or_global(setting_name)
-        else
-          settings[setting_name]
+        return settings[setting_name] if fallback.nil?
+
+        case fallback.to_s
+          when 'default' then settings.get_or_default(setting_name)
+          when 'global'  then settings.get_or_global(setting_name)
+          else settings.get_or_value(setting_name, fallback)
         end
       end
 

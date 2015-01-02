@@ -163,6 +163,13 @@ module SettingAccessors::SettingScaffold
         YAML.load(File.open(Rails.root.join('config/settings.yml'))).stringify_keys
       end
     end
+
+    #
+    # @return [TrueClass, FalseClass] +true+ if the setting is defined in config/settings.yml
+    #
+    def globally_defined?(setting_name)
+      config[setting_name.to_s].present?
+    end
   end
 
   #
@@ -196,6 +203,10 @@ module SettingAccessors::SettingScaffold
     data['type'] || 'polymorphic'
   end
 
+  #
+  # @return [Object] the setting's value before it was type casted using the defined rule in settings.yml
+  #   See #value_before_type_cast for ActiveRecord attributes
+  #
   def original_value
     converter.value_before_type_cast
   end
@@ -226,9 +237,14 @@ module SettingAccessors::SettingScaffold
   end
 
   #
-  # @return [Hash] the config file data regarding this setting
+  # @return [Hash] configuration data regarding this setting
+  #
+  #   - If it's a globally defined setting, the value is taken from config/settings.yml
+  #   - If it's a setting defined in a setting_accessor call, the information is taken from this call
+  #   - Otherwise, an empty hash is returned
   #
   def data
-    self.class.config[self.name.to_s] || {}
+    (assignable && SettingAccessors.get_class_setting(assignable.class, self.name)) || self.class.config[self.name.to_s] || {}
   end
+
 end
