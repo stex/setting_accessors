@@ -11,18 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140518140150) do
+ActiveRecord::Schema.define(version: 20150102115329) do
 
-  create_table "emails", force: true do |t|
-    t.string   "from"
-    t.string   "to"
-    t.integer  "last_send_attempt", default: 0
-    t.text     "mail"
-    t.datetime "delivery_time"
-    t.text     "smtp_settings"
-    t.integer  "a_number"
+  create_table "settings", force: :cascade do |t|
+    t.integer  "assignable_id"
+    t.string   "assignable_type"
+    t.string   "name"
+    t.text     "value"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string   "first_name"
+    t.string   "last_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end

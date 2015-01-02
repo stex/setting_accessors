@@ -23,3 +23,7 @@ mkmf.log
 
 #Rubymine
 .idea
+
+#Dummy Application
+test/dummy/log
+test/dummy/db/development.sqlite3

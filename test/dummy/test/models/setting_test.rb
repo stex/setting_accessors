@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../../test_helper'
 
 class SettingTest < ActiveSupport::TestCase
   should validate_presence_of :name
@@ -33,9 +33,9 @@ class SettingTest < ActiveSupport::TestCase
     end
 
     should 'return assignable specific settings if an assignable is given' do
-      ash         = FactoryGirl.create(:user, :first_name => 'Ash', :last_name => 'Ketchum')
-      gary        = FactoryGirl.create(:user, :first_name => 'Gary', :last_name => 'Oak')
-      team_rocket = FactoryGirl.create(:user, :first_name => 'Jessie', :last_name => 'James')
+      ash         = User.create(:first_name => 'Ash', :last_name => 'Ketchum')
+      gary        = User.create(:first_name => 'Gary', :last_name => 'Oak')
+      team_rocket = User.create(:first_name => 'Jessie', :last_name => 'James')
 
       assert Setting.create_or_update(:pokedex_count, 151, ash)
       assert Setting.create_or_update(:pokedex_count, 1, gary)
@@ -52,7 +52,7 @@ class SettingTest < ActiveSupport::TestCase
 
   context 'The create_or_update function' do
     setup do
-      @ash  = FactoryGirl.create(:user, :first_name => 'Ash', :last_name => 'Ketchum')
+      @ash  = User.create(:first_name => 'Ash', :last_name => 'Ketchum')
     end
 
     should 'create a new assigned setting if it did not exist before' do

@@ -3,6 +3,7 @@ require 'setting_accessors/accessor'
 require 'setting_accessors/converter'
 require 'setting_accessors/integration'
 require 'setting_accessors/integration_validator'
+require 'setting_accessors/setting_scaffold'
 require 'setting_accessors/validator'
 
 module SettingAccessors

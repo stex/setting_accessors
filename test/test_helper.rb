@@ -3,6 +3,7 @@ ENV["RAILS_ENV"] = "test"
 
 require File.expand_path("../dummy/config/environment.rb",  __FILE__)
 
+require 'active_support'
 require 'minitest'
 require 'shoulda'
 require "rails/test_help"
