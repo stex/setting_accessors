@@ -97,8 +97,8 @@ module SettingAccessors::SettingScaffold
     # The second argument is an optional assignable
     #
     def []=(name, *args)
-      assignable = args.size > 2 ? args[1] : nil
-      self.create_or_update(name, assignable, args.last)
+      assignable = args.size > 1 ? args.first : nil
+      self.create_or_update(name, args.last, assignable, true)
     end
 
     #
