@@ -32,7 +32,8 @@ class SettingAccessors::Converter
     if private_methods.include?(parse_method)
       send(parse_method, new_value)
     else
-      raise ArgumentError.new("Invalid Setting type: #{@value_type}")
+      Rails.logger.warn("Invalid Setting type: #{@value_type}")
+      new_value
     end
   end
 
