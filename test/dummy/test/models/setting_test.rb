@@ -82,11 +82,11 @@ class SettingTest < ActiveSupport::TestCase
 
   context 'The globally_defined method' do
     should 'return true for a setting which is defined in config/settings.yml' do
-      assert Setting.globally_defined?('a_string')
+      assert SettingAccessors::Internal.globally_defined_setting?('a_string')
     end
 
     should 'return false for a setting which is not defined in config/settings.yml' do
-      assert !Setting.globally_defined?('something_different')
+      assert !SettingAccessors::Internal.globally_defined_setting?('something_different')
     end
   end
 
@@ -109,7 +109,7 @@ class SettingTest < ActiveSupport::TestCase
     should 'have the type defined in the setting_accessor call' do
       assert u = User.create(:first_name => 'a', :last_name => 'name', :locale => 'de')
       assert s = Setting.setting_record(:locale, User.first)
-      assert_equal 'string', s.type.to_s
+      assert_equal 'string', s.value_type.to_s
     end
 
     should 'not override global settings' do

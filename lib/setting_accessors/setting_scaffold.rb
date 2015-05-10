@@ -8,6 +8,12 @@ module SettingAccessors::SettingScaffold
 
   def self.included(base)
     base.extend ClassMethods
+    base.validates_with SettingAccessors::Validator
+    base.serialize :value
+
+    base.validates :name,
+                   :uniqueness => {:scope => [:assignable_type, :assignable_id]},
+                   :presence   => true
   end
 
   module ClassMethods
@@ -124,6 +130,13 @@ module SettingAccessors::SettingScaffold
     end
 
     #
+    # @return [Object] the default value for the given setting
+    #
+    def get_default_value(name, assignable = nil)
+      self.new(:name => name, :assignable => assignable).default_value
+    end
+
+    #
     # Looks up a setting record for the given name and assignable
     # Unlike the other methods here, this one actually returns a Setting object
     # instead of its value.
@@ -143,32 +156,10 @@ module SettingAccessors::SettingScaffold
     #
     # @return [Array<String>] The validation errors for the setting's value
     #
-    def validation_errors(name, value)
-      s = self.new(:name => name, :value => value)
+    def validation_errors(name, value, assignable = nil)
+      s = self.new(:name => name, :value => value, :assignable => assignable)
       s.valid?
       s.errors.get(:value) || []
-    end
-
-    #
-    # Loads information about all settings from YAML file
-    # These are cached in the class so they don't have to be reloaded
-    # every time.
-    #
-    # Note: For development / test, this is flushed every time
-    #
-    def config
-      if Rails.env.production?
-        @@config ||= YAML.load(File.open(Rails.root.join('config/settings.yml'))).stringify_keys
-      else
-        YAML.load(File.open(Rails.root.join('config/settings.yml'))).stringify_keys
-      end
-    end
-
-    #
-    # @return [TrueClass, FalseClass] +true+ if the setting is defined in config/settings.yml
-    #
-    def globally_defined?(setting_name)
-      config[setting_name.to_s].present?
     end
   end
 
@@ -177,7 +168,7 @@ module SettingAccessors::SettingScaffold
   #   they are stored in config/locales/settings.LOCALE.yml
   #
   def localized_name
-    I18n.t(:name, :scope => [:settings, self.name])
+    i18n_lookup(:name)
   end
 
   #
@@ -185,7 +176,18 @@ module SettingAccessors::SettingScaffold
   #   see #localized_name
   #
   def localized_description
-    I18n.t(:description, :scope => [:settings, self.name])
+    i18n_lookup(:description)
+  end
+
+  #
+  # Performs an I18n lookup in the settings locale.
+  # Class based settings are store in 'settings.CLASS.NAME', globally defined settings
+  # in 'settings.global.NAME'
+  #
+  def i18n_lookup(key, options = {})
+    options[:scope] = [:settings, :global, self.name]
+    options[:scope] = [:settings, self.assignable.class.to_s.underscore, self.name] unless SettingAccessors::Internal.globally_defined_setting?(self.name)
+    I18n.t(key, options)
   end
 
   #
@@ -199,7 +201,7 @@ module SettingAccessors::SettingScaffold
   # @return [String] the setting's type as specified in settings.yml
   #   If the setting wasn't specified, a polymorphic type is assumed
   #
-  def type
+  def value_type
     data['type'] || 'polymorphic'
   end
 
@@ -207,8 +209,11 @@ module SettingAccessors::SettingScaffold
   # @return [Object] the setting's value before it was type casted using the defined rule in settings.yml
   #   See #value_before_type_cast for ActiveRecord attributes
   #
+  # We can't use the name #value_before_type_cast here as it would
+  # shadow ActiveRecord's default one - which might still be needed.
+  #
   def original_value
-    converter.value_before_type_cast
+    @original_value || self.value
   end
 
   #
@@ -216,13 +221,14 @@ module SettingAccessors::SettingScaffold
   # Performs automatic type casts
   #
   def set_value(new_value)
-    self.value = converter.convert(new_value)
+    @original_value = new_value
+    self.value      = converter.convert(new_value)
   end
 
   private
 
   def converter
-    @converter ||= SettingAccessors::Converter.new(self)
+    @converter ||= SettingAccessors::Internal.converter(value_type)
   end
 
   def value_required?
@@ -233,18 +239,14 @@ module SettingAccessors::SettingScaffold
   # Accessor to the validations part of the setting's data
   #
   def validations
-    data['validations'] || {}
+    data['validates'] || {}
   end
 
   #
-  # @return [Hash] configuration data regarding this setting
-  #
-  #   - If it's a globally defined setting, the value is taken from config/settings.yml
-  #   - If it's a setting defined in a setting_accessor call, the information is taken from this call
-  #   - Otherwise, an empty hash is returned
+  # @see {SettingAccessors::Internal#setting_data} for more information
   #
   def data
-    (assignable && SettingAccessors.get_class_setting(assignable.class, self.name)) || self.class.config[self.name.to_s] || {}
+    SettingAccessors::Internal.setting_data(name, assignable)
   end
 
 end

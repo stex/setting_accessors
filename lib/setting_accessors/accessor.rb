@@ -13,14 +13,19 @@ class SettingAccessors::Accessor
   # Gets a setting's value
   #
   def [](key)
-    @temp_settings[key.to_sym] || Setting.get(key, @record)
+    @temp_settings[key.to_sym] || SettingAccessors.setting_class.get(key, @record)
+  end
+
+  def has_key?(key)
+    @temp_settings.has_key?(key.to_sym)
   end
 
   #
   # Writes a setting's value
   #
   def []=(key, val)
-    @temp_settings[key.to_sym] = val
+    set_value_before_type_cast(key, val)
+    @temp_settings[key.to_sym] = SettingAccessors::Internal.converter(value_type(key)).convert(val)
   end
 
   #
@@ -29,7 +34,7 @@ class SettingAccessors::Accessor
   # specified in the setting config file.
   #
   def get_or_default(key)
-    self[key] || Setting.get_or_default(key, @record)
+    self[key] || SettingAccessors.setting_class.get_or_default(key, @record)
   end
 
   #
@@ -37,7 +42,7 @@ class SettingAccessors::Accessor
   # If none is found, tries to find a global setting with the same name
   #
   def get_or_global(key)
-    self[key] || Setting.get(key)
+    self[key] || SettingAccessors.setting_class.get(key)
   end
 
   #
@@ -45,10 +50,58 @@ class SettingAccessors::Accessor
   # if none is found, it will return the given value instead.
   #
   def get_or_value(key, value)
-    self[key] || value
+    self.has_key?(key) ? self[key] : value
+  end
+
+  def get_with_fallback(key, fallback = nil)
+    return self[key] if fallback.nil?
+
+    case fallback.to_s
+      when 'default' then get_or_default(key)
+      when 'global'  then get_or_global(key)
+      else get_or_value(key, fallback)
+    end
+  end
+
+  #
+  # @return [String] the setting's value type in the +@record+'s context
+  #
+  def value_type(key)
+    SettingAccessors::Internal.setting_value_type(key, @record)
+  end
+
+  #----------------------------------------------------------------
+  #               ActiveRecord Helper Methods Emulation
+  #----------------------------------------------------------------
+
+  def value_was(key, fallback = nil)
+    return SettingAccessors.setting_class.get(key, @record) if fallback.nil?
+
+    case fallback.to_s
+      when 'default' then SettingAccessors.setting_class.get_or_default(key, @record)
+      when 'global'  then SettingAccessors.setting_class.get(key)
+      else fallback
+    end
+  end
+
+  def value_changed?(key)
+    self[key] != value_was(key)
+  end
+
+  def value_before_type_cast(key)
+    SettingAccessors::Internal.lookup_nested_hash(@values_before_type_casts, key.to_s) || self[key]
   end
 
   protected
+
+  #
+  # Keeps a record of the originally set value for a setting before it was
+  # automatically converted.
+  #
+  def set_value_before_type_cast(key, value)
+    @values_before_type_casts ||= {}
+    @values_before_type_casts[key.to_s] = value
+  end
 
   #
   # Validates the new setting values.
@@ -62,7 +115,7 @@ class SettingAccessors::Accessor
   #
   def validate!
     @temp_settings.each do |key, value|
-      validation_errors = Setting.validation_errors(key, value)
+      validation_errors = SettingAccessors.setting_class.validation_errors(key, value, @record)
       validation_errors.each do |message|
         if @record.respond_to?("#{key}=")
           @record.errors.add(key, message)

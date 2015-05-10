@@ -2,11 +2,54 @@ class SettingAccessors::Validator < ActiveModel::Validator
 
   def validate(record)
     record.send(:validations).each do |key, requirement|
-      send("validate_#{key}", record, requirement)
+      if key.to_s == 'custom'
+        Array(requirement).each do |validation|
+          run_custom_validation(record, validation)
+        end
+      elsif built_in_validation?(key)
+        send("validate_#{key}", record, requirement)
+      else
+        raise ArgumentError.new("The invalid validation '#{key}' was given in model '#{defining_model(record).to_s}'")
+      end
     end
   end
 
   private
+
+  def defining_model(record)
+    if SettingAccessors::Internal.globally_defined_setting?(record.name) || !record.assignable
+      SettingAccessors.setting_class
+    else
+      record.assignable.class
+    end
+  end
+
+  #
+  # Runs a custom validation method
+  # The method may either be a Proc or an instance method in +record+.+class+
+  #
+  def run_custom_validation(record, proc)
+    case proc
+    when Proc
+      proc.call(record)
+    when Symbol
+      if defining_model(record).respond_to?(proc)
+        defining_model(record).send(proc)
+      else
+        raise ArgumentError.new "The method '#{proc}' was set up as validation method in model '#{defining_model(record).name}', but doesn't exist."
+      end
+    else
+      raise ArgumentError.new "An invalid validations method was given ('#{proc}')"
+    end
+  end
+
+  #
+  # @return [TrueClass, FalseClass] +true+ if the given validation
+  #  is a built-in one.
+  #
+  def built_in_validation?(validation_name)
+    private_methods.include?("validate_#{validation_name}".to_sym)
+  end
 
   #
   # Validates that the setting's value is given

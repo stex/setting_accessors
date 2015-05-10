@@ -1,37 +1,39 @@
 #
-# This class contains methods to ensure that setting values
-# are stored in the correct type. Validations are run before conversions,
-# so there are no additional checks here.
+# This class hopefully will hopefully one day mimic ActiveRecord's
+# attribute assigning methods, meaning that a conversion to the column type
+# is done as soon as a new value is assigned by the programmer.
 #
 # If the value cannot be parsed in the required type, +nil+ is assigned.
 # Please make sure that you specify the correct validations in settings.yml
 # to avoid this.
 #
-
+# Currently supported types:
+#   - Fixnum
+#   - String
+#   - Boolean
+#
+# If the type is 'polymorphic', it is not converted at all.
+#
 class SettingAccessors::Converter
 
-  def initialize(record)
-    @record = record
+  def initialize(value_type)
+    @value_type = value_type
   end
 
   #
   # Converts the setting's value to the correct type
   #
   def convert(new_value)
-    @value_before_type_cast = new_value
-    return new_value if @record.type == 'polymorphic'
+    #If the value is set to be polymorphic, we don't have to convert anything.
+    return new_value if @value_type == 'polymorphic'
 
-    parse_method = :"parse_#{@record.type}"
+    parse_method = :"parse_#{@value_type}"
 
     if private_methods.include?(parse_method)
       send(parse_method, new_value)
     else
-      raise ArgumentError.new("Invalid Setting type: #{@record.type}")
+      raise ArgumentError.new("Invalid Setting type: #{@value_type}")
     end
-  end
-
-  def value_before_type_cast
-    @value_before_type_cast
   end
 
   private

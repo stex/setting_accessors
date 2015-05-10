@@ -38,20 +38,37 @@ module SettingAccessors::Integration
     def setting_accessor(setting_name, options = {})
       fallback = options.delete(:fallback)
 
-      SettingAccessors.set_class_setting(self, setting_name, options)
+      SettingAccessors::Internal.set_class_setting(self, setting_name, options)
 
+      #Create a virtual column in the models column hash.
+      #This is currently not absolutely necessary, but will become important once
+      #Time etc. are supported. Otherwise, Rails won't be able to e.g. automatically
+      #create multi-param fields in forms.
+      self.columns_hash[setting_name.to_s] = OpenStruct.new(type: SettingAccessors::Internal.setting_value_type(setting_name, self.new).to_sym)
+
+      #Getter
       define_method(setting_name) do
-        return settings[setting_name] if fallback.nil?
-
-        case fallback.to_s
-          when 'default' then settings.get_or_default(setting_name)
-          when 'global'  then settings.get_or_global(setting_name)
-          else settings.get_or_value(setting_name, fallback)
-        end
+        settings.get_with_fallback(setting_name, fallback)
       end
 
+      # Setter
       define_method("#{setting_name}=") do |new_value|
         settings[setting_name] = new_value
+      end
+
+      #NAME_was
+      define_method("#{setting_name}_was") do
+        settings.value_was(setting_name, fallback)
+      end
+
+      #NAME_before_type_cast
+      define_method("#{setting_name}_before_type_cast") do
+        settings.value_before_type_cast(setting_name)
+      end
+
+      #NAME_changed?
+      define_method("#{setting_name}_changed?") do
+        settings.value_changed?(setting_name)
       end
     end
   end
