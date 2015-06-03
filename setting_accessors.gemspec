@@ -8,8 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = SettingAccessors::VERSION
   spec.authors       = ["Stefan Exner"]
   spec.email         = ["stex@sterex.de"]
-  spec.summary       = %q{Attributes without database changes. The future? (JK)}
-  spec.description   = %q{Longer description.}
+  spec.summary       = %q{A global key-value-store and virtual model columns}
+  spec.description   = %q{Adds a global key-value-store to Rails applications and allows adding typed columns
+                          to model classes without having to change the database layout.}
   spec.homepage      = 'https://www.github.com/stex/setting_accessors'
   spec.license       = "MIT"
 
