@@ -23,14 +23,10 @@ module SettingAccessors
         migration_template 'migration.rb.erb', "db/migrate/create_#{model_name.classify.underscore.pluralize}.rb"
 
         initializer 'setting_accessors.rb', <<INIT
-SettingAccessors.configuration do |config|
-
-  #The model your application is using for settings.
-  #If you created it using the SettingAccessors generator, the
-  #model name below should already be correct.
-  config.setting_class = #{model_name}
-
-end
+#The model your application is using for settings.
+#If you created it using the SettingAccessors generator, the
+#model name below should already be correct.
+SettingAccessors.setting_class = #{model_name}
 INIT
       end
     end
