@@ -1,6 +1,9 @@
 SettingAccessors
 ================
 
+[![Gem Version](https://badge.fury.io/rb/setting_accessors.svg)](http://badge.fury.io/rb/setting_accessors)
+[![Build Status](https://travis-ci.org/Stex/setting_accessors.svg?branch=master)](https://travis-ci.org/Stex/setting_accessors)
+
 Sometimes it's handy to keep track of various settings or attributes in ActiveRecord instances and persist them through various requests (and sessions). An example would be to store a items-per-page value for multiple tables in the application per user or probably also set default sorting directions.
 
 The only problem is, that it would be necessary to either keep hundreds of columns in the corresponding table or create a serialized attribute which would grow over time and generally be hard to manage.
