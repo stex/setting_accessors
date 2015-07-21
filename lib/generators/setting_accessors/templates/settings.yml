@@ -1,6 +1,5 @@
 #
-# This file specifies all settings used in the application
-# (be it record specific or global).
+# This file specifies all globally defined settings used in the application.
 #
 # The keys are the setting names, the values are a hash
 # containing validation options, type and default value
@@ -22,3 +21,4 @@
 #   default: true
 #   validations:
 #     boolean: true
+

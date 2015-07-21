@@ -32,9 +32,9 @@ module SettingAccessors
     #
     def self.global_config
       if Rails.env.test? || Rails.env.development?
-        YAML.load(File.open(Rails.root.join('config/settings.yml'))).deep_stringify_keys
+        (YAML.load(File.open(Rails.root.join('config/settings.yml'))) || {}).deep_stringify_keys
       else
-        @@config ||= YAML.load(File.open(Rails.root.join('config/settings.yml'))).deep_stringify_keys
+        @@config ||= (YAML.load(File.open(Rails.root.join('config/settings.yml'))) || {}).deep_stringify_keys
       end
     end
 
