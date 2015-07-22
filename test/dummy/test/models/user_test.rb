@@ -5,7 +5,6 @@ class UserTest < ActiveSupport::TestCase
     end
 
     should 'include the setting accessors' do
-      puts @user.as_json
       SettingAccessors::Internal.setting_accessor_names(User).each do |setting_name|
         assert_includes @user.as_json.keys, setting_name
       end
