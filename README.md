@@ -243,9 +243,18 @@ setting did not receive a value yet:
 :validations => {:custom => [:must_be_42]}
 ```
 
-There are some built-in validations (see above), but you may also define custom
-validations either by passing in anonymous functions or symbols representing
-class methods either in the setting class or the assigned model.
+There are some built-in validations (see above), but they should be mostly used for globally defined
+and globally used settings (`Setting.somethingsomething`).
+For model specific settings, you may treat the setting accessors just like normal columns
+and define your validations accordingly, e.g.
+
+```ruby
+setting_accessor :my_string, :type => :string
+setting_accessor :my_number, :type => :integer
+
+validates :my_string, :presence => true
+validates :my_number, :numericality => {:only_integer => true}
+```
 
 Contributing
 ------------

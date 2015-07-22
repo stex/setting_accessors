@@ -5,7 +5,7 @@
 #
 # If the value cannot be parsed in the required type, +nil+ is assigned.
 # Please make sure that you specify the correct validations in settings.yml
-# to avoid this.
+# or assigned model to avoid this.
 #
 # Currently supported types:
 #   - Fixnum
@@ -26,6 +26,10 @@ class SettingAccessors::Converter
   def convert(new_value)
     #If the value is set to be polymorphic, we don't have to convert anything.
     return new_value if @value_type == 'polymorphic'
+
+    #ActiveRecord only converts non-nil values to their database type
+    #during assignment
+    return new_value if new_value.nil?
 
     parse_method = :"parse_#{@value_type}"
 
