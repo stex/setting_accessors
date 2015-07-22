@@ -36,6 +36,9 @@ module SettingAccessors::Integration
     #   setting and return +nil+ if none was specified previously.
     #
     def setting_accessor(setting_name, options = {})
+      #If the database table does not yet exist,
+      return unless self.table_exists?
+
       fallback = options.delete(:fallback)
 
       SettingAccessors::Internal.set_class_setting(self, setting_name, options)
