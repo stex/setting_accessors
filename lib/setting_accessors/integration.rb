@@ -49,6 +49,9 @@ module SettingAccessors::Integration
       #create multi-param fields in forms.
       self.columns_hash[setting_name.to_s] = OpenStruct.new(type: SettingAccessors::Internal.setting_value_type(setting_name, self.new).to_sym)
 
+      #Add the setting's name to the list of setting_accessors for this class
+      SettingAccessors::Internal.add_setting_accessor_name(self, setting_name)
+
       #Getter
       define_method(setting_name) do
         settings.get_with_fallback(setting_name, fallback)
@@ -74,6 +77,14 @@ module SettingAccessors::Integration
         settings.value_changed?(setting_name)
       end
     end
+  end
+
+  def as_json(*args)
+    json = super(*args)
+    SettingAccessors::Internal.setting_accessor_names(self.class).each do |setting_name|
+      json[setting_name.to_s] = send(setting_name)
+    end
+    json
   end
 
   def settings

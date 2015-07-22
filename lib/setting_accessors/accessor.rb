@@ -13,7 +13,7 @@ class SettingAccessors::Accessor
   # Gets a setting's value
   #
   def [](key)
-    @temp_settings[key.to_sym] || SettingAccessors.setting_class.get(key, @record)
+    has_key?(key) ? @temp_settings[key.to_sym] : SettingAccessors.setting_class.get(key, @record)
   end
 
   def has_key?(key)

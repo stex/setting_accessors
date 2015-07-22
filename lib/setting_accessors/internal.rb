@@ -69,7 +69,6 @@ module SettingAccessors
       end
     end
 
-
     #
     # @return [Hash] configuration data regarding this setting
     #
@@ -104,5 +103,24 @@ module SettingAccessors
     def self.get_class_setting(klass, setting_name)
       self.lookup_nested_hash(@@class_settings, klass.to_s, setting_name.to_s)
     end
+
+    #
+    # Adds the given setting name to the list of used setting accessors
+    # in the given class.
+    # This is mainly to keep track of all accessors defined in the different classes
+    #
+    def self.add_setting_accessor_name(klass, setting_name)
+      @@setting_accessor_names ||= {}
+      @@setting_accessor_names[klass.to_s] ||= []
+      @@setting_accessor_names[klass.to_s] << setting_name.to_s
+    end
+
+    #
+    # @return [Array<String>] all setting accessor names defined in the given +class+
+    #
+    def self.setting_accessor_names(klass)
+      self.lookup_nested_hash(@@setting_accessor_names, klass.to_s)
+    end
+
   end
 end
