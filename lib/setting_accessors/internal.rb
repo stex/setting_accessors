@@ -119,6 +119,7 @@ module SettingAccessors
     # @return [Array<String>] all setting accessor names defined in the given +class+
     #
     def self.setting_accessor_names(klass)
+      @@setting_accessor_names ||= {}
       self.lookup_nested_hash(@@setting_accessor_names, klass.to_s) || []
     end
 

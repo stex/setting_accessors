@@ -1,3 +1,5 @@
+require_relative '../../../test_helper'
+
 class UserTest < ActiveSupport::TestCase
   context 'JSON serialization' do
     setup do
