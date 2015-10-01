@@ -17,6 +17,5 @@ class UserTest < ActiveSupport::TestCase
         assert_equal @user.as_json[setting_name.to_s], @user.send(setting_name)
       end
     end
-
   end
 end
