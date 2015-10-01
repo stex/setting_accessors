@@ -128,4 +128,16 @@ class SettingTest < ActiveSupport::TestCase
       assert_equal 'Kapitanski', User.new.class_wise_with_default_fallback
     end
   end
+
+  context 'Boolean settings' do
+    should 'respect temporary settings which are set to `false`' do
+      user = User.new(:class_wise_truthy_boolean => false)
+      assert_equal user.class_wise_truthy_boolean, false
+    end
+
+    should 'respect temporary settings which are set to `true`' do
+      user = User.new(:a_boolean => true)
+      assert_equal user.a_boolean, true
+    end
+  end
 end

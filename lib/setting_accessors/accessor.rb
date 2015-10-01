@@ -16,6 +16,18 @@ class SettingAccessors::Accessor
     has_key?(key) ? @temp_settings[key.to_sym] : SettingAccessors.setting_class.get(key, @record)
   end
 
+  #
+  # Tries to fetch a setting value using the provided key and #[].
+  # It will only return the +default+ value if there is
+  #   - no temporary setting with the given key AND
+  #   - no already persisted setting (see #[])
+  #
+  def fetch(key, default = nil)
+    result = self[key]
+    return default if result.nil? && !has_key?(key)
+    result
+  end
+
   def has_key?(key)
     @temp_settings.has_key?(key.to_sym)
   end
@@ -34,7 +46,7 @@ class SettingAccessors::Accessor
   # specified in the setting config file.
   #
   def get_or_default(key)
-    self[key] || SettingAccessors.setting_class.get_or_default(key, @record)
+    fetch key, SettingAccessors.setting_class.get_or_default(key, @record)
   end
 
   #
@@ -42,7 +54,7 @@ class SettingAccessors::Accessor
   # If none is found, tries to find a global setting with the same name
   #
   def get_or_global(key)
-    self[key] || SettingAccessors.setting_class.get(key)
+    fetch key, SettingAccessors.setting_class.get(key)
   end
 
   #
@@ -50,7 +62,7 @@ class SettingAccessors::Accessor
   # if none is found, it will return the given value instead.
   #
   def get_or_value(key, value)
-    self.has_key?(key) ? self[key] : value
+    fetch key, value
   end
 
   def get_with_fallback(key, fallback = nil)
