@@ -43,19 +43,24 @@ module SettingAccessors::Integration
 
       SettingAccessors::Internal.set_class_setting(self, setting_name, options)
 
+      setting_type = SettingAccessors::Internal.setting_value_type(setting_name, self.new).to_sym
+
       #Create a virtual column in the models column hash.
       #This is currently not absolutely necessary, but will become important once
       #Time etc. are supported. Otherwise, Rails won't be able to e.g. automatically
       #create multi-param fields in forms.
-      self.columns_hash[setting_name.to_s] = OpenStruct.new(type: SettingAccessors::Internal.setting_value_type(setting_name, self.new).to_sym)
+      self.columns_hash[setting_name.to_s] = OpenStruct.new(type: setting_type)
 
       #Add the setting's name to the list of setting_accessors for this class
       SettingAccessors::Internal.add_setting_accessor_name(self, setting_name)
 
-      #Getter
+      # Getter
       define_method(setting_name) do
         settings.get_with_fallback(setting_name, fallback)
       end
+
+      # Getter alias for boolean settings
+      alias_method "#{setting_name}?", setting_name if setting_type == :boolean
 
       # Setter
       define_method("#{setting_name}=") do |new_value|

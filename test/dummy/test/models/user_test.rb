@@ -18,4 +18,23 @@ class UserTest < ActiveSupport::TestCase
       end
     end
   end
+
+  context 'Boolean getter methods' do
+    setup do
+      @user = User.new(:a_string => 'test', :a_number => 42, :a_boolean => false)
+    end
+
+    should 'be created for boolean settings' do
+      assert @user.respond_to?(:a_boolean?), '?-getter is not defined for boolean settings'
+    end
+
+    should 'return the same value as the original getter' do
+      assert_equal @user.a_boolean, @user.a_boolean?
+    end
+
+    should 'not be created for non-boolean settings' do
+      assert !@user.respond_to?(:a_number?)
+      assert !@user.respond_to?(:a_string?)
+    end
+  end
 end
