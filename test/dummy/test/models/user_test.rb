@@ -37,4 +37,31 @@ class UserTest < ActiveSupport::TestCase
       assert !@user.respond_to?(:a_string?)
     end
   end
+
+  context 'Polymorphic class-wise settings' do
+    setup do
+      @user = User.create
+    end
+
+    should 'be updated in database if their whole value changes' do
+      @user.polymorphic_setting = {:a => :b}
+      assert @user.save
+      assert_equal User.last, @user
+      assert_equal User.last.polymorphic_setting, {:a => :b}
+    end
+
+    should 'be updated in database if a property of their value changes' do
+      @user.polymorphic_setting[:new_key] = 'new_value'
+      assert @user.save
+      assert_equal User.last, @user
+      assert_equal User.last.polymorphic_setting, {:new_key => 'new_value'}
+    end
+
+    should 'not update other assignable settings' do
+      @user2 = User.create
+      @user2.polymorphic_setting = {:foo => :bar}
+      assert @user2.save
+      assert_equal User.first.polymorphic_setting, {}
+    end
+  end
 end

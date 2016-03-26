@@ -194,7 +194,7 @@ module SettingAccessors::SettingScaffold
   # @return [Object] the default value for the current setting
   #
   def default_value
-    data['default']
+    data['default'].freeze
   end
 
   #

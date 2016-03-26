@@ -28,6 +28,22 @@ class SettingAccessors::Accessor
     result
   end
 
+  #
+  # Like #fetch, but it will store the default value as a temporary setting
+  # if no actual setting value could be found. This is useful to further work
+  # with default setting values.
+  # The default value is cloned (using #dup to avoid copying object states) before
+  # it is assigned. This will not work for singleton instances like true, false, etc.
+  #
+  def fetch_and_store(key, default = nil)
+    result = self[key]
+    if result.nil? && !has_key?(key)
+      self[key] = default.duplicable? ? default.dup : default
+    else
+      result
+    end
+  end
+
   def has_key?(key)
     @temp_settings.has_key?(key.to_sym)
   end
@@ -46,7 +62,7 @@ class SettingAccessors::Accessor
   # specified in the setting config file.
   #
   def get_or_default(key)
-    fetch key, SettingAccessors.setting_class.get_or_default(key, @record)
+    fetch_and_store(key, SettingAccessors.setting_class.get_or_default(key, @record))
   end
 
   #
@@ -54,7 +70,7 @@ class SettingAccessors::Accessor
   # If none is found, tries to find a global setting with the same name
   #
   def get_or_global(key)
-    fetch key, SettingAccessors.setting_class.get(key)
+    fetch_and_store(key, SettingAccessors.setting_class.get(key))
   end
 
   #
@@ -62,7 +78,7 @@ class SettingAccessors::Accessor
   # if none is found, it will return the given value instead.
   #
   def get_or_value(key, value)
-    fetch key, value
+    fetch_and_store(key, value)
   end
 
   def get_with_fallback(key, fallback = nil)

@@ -1,5 +1,7 @@
 class User < ActiveRecord::Base
 
+  setting_accessor :polymorphic_setting, :type => :polymorphic, :default => {}, :fallback => :default
+
   setting_accessor :locale, :type => :string, :validations => {:presence => true}
 
   setting_accessor :a_string, :fallback => :default

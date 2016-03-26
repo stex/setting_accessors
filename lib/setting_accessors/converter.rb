@@ -25,7 +25,7 @@ class SettingAccessors::Converter
   #
   def convert(new_value)
     #If the value is set to be polymorphic, we don't have to convert anything.
-    return new_value if @value_type == 'polymorphic'
+    return new_value if @value_type.to_s == 'polymorphic'
 
     #ActiveRecord only converts non-nil values to their database type
     #during assignment
