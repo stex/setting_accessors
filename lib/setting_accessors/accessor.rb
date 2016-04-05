@@ -1,7 +1,6 @@
 #
 # Helper class to make accessing record specific settings easier
 #
-
 class SettingAccessors::Accessor
 
   def initialize(record)
@@ -10,10 +9,24 @@ class SettingAccessors::Accessor
   end
 
   #
-  # Gets a setting's value
+  # Tries to retrieve the given setting's value from the temp settings
+  # (already read/written values in this instance). If the setting hasn't been
+  # used before, its value is retrieved from the database.
+  #
+  # If a setting hasn't been read by this record (instance) before, its value
+  # is stored in the local read set.
+  #
+  # TODO: See if this causes problems with read settings not being updated by external changes.
+  #       User1: Read Setting X
+  #       User2: Update Setting X
+  #       User1: Read Setting X -> Gets old value from temp settings.
+  #   This shouldn't be too dangerous as the system state will be refreshed with every request though.
   #
   def [](key)
-    has_key?(key) ? @temp_settings[key.to_sym] : SettingAccessors.setting_class.get(key, @record)
+    return @temp_settings[key.to_sym] if has_key?(key)
+    value = SettingAccessors.setting_class.get(key, @record)
+    @temp_settings[key.to_sym] = value unless value.nil?
+    value
   end
 
   #

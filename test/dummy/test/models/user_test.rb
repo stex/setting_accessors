@@ -43,25 +43,54 @@ class UserTest < ActiveSupport::TestCase
       @user = User.create
     end
 
-    should 'be updated in database if their whole value changes' do
-      @user.polymorphic_setting = {:a => :b}
-      assert @user.save
-      assert_equal User.last, @user
-      assert_equal User.last.polymorphic_setting, {:a => :b}
+    context 'when being assigned an initial value' do
+      should 'be created in database' do
+        @user.polymorphic_setting = {:a => :b}
+        assert @user.save
+        assert_equal User.last, @user
+        assert_equal User.last.polymorphic_setting, {:a => :b}
+      end
+
+      should 'be created in database if one of their properties changes' do
+        @user.polymorphic_setting[:new_key] = 'new_value'
+        assert @user.save
+        assert_equal User.last, @user
+        assert_equal({:new_key => 'new_value'}, User.last.polymorphic_setting)
+      end
+
+      should 'not change the value of other assignable settings' do
+        @user2 = User.create
+        @user2.polymorphic_setting = {:foo => :bar}
+        assert @user2.save
+        assert_equal User.first.polymorphic_setting, {}
+      end
     end
 
-    should 'be updated in database if a property of their value changes' do
-      @user.polymorphic_setting[:new_key] = 'new_value'
-      assert @user.save
-      assert_equal User.last, @user
-      assert_equal User.last.polymorphic_setting, {:new_key => 'new_value'}
-    end
+    context 'when being updated' do
+      setup do
+        @user.polymorphic_setting = {:a => :b}
+        assert @user.save
+        assert @user.reload
+        assert_equal({:a => :b}, @user.polymorphic_setting)
+        assert_equal({:a => :b}, User.last.polymorphic_setting)
+      end
 
-    should 'not update other assignable settings' do
-      @user2 = User.create
-      @user2.polymorphic_setting = {:foo => :bar}
-      assert @user2.save
-      assert_equal User.first.polymorphic_setting, {}
+      # Single hash value changed, etc.
+      should 'be saved if one of their properties changes' do
+        @user.polymorphic_setting[:a] = :c
+        assert @user.save
+        assert @user.reload
+        assert_equal({:a => :c}, @user.polymorphic_setting)
+        assert_equal({:a => :c}, User.last.polymorphic_setting)
+      end
+
+      should 'be updated if their whole value changes' do
+        @user.polymorphic_setting = {:a => :c}
+        assert @user.save
+        assert @user.reload
+        assert_equal({:a => :c}, @user.polymorphic_setting)
+        assert_equal({:a => :c}, User.last.polymorphic_setting)
+      end
     end
   end
 end
