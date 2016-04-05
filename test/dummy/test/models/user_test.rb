@@ -38,6 +38,22 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  context 'the read set (@temp_settings)' do
+    setup do
+      @user = User.create
+      @user_alias = User.find(@user.id)
+
+      # Use @user_alias here to ensure that the setting value is saved in the instance's read set
+      @user.a_boolean = !@user_alias.a_boolean
+      assert @user.save
+    end
+
+    should 'be refreshed with the new values on #reload' do
+      assert @user_alias.reload
+      assert_equal @user.a_boolean, @user_alias.a_boolean
+    end
+  end
+
   context 'Polymorphic class-wise settings' do
     setup do
       @user = User.create

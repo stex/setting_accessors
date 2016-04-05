@@ -2,9 +2,9 @@ module SettingAccessors::Integration
   def self.included(base)
     base.validates_with SettingAccessors::IntegrationValidator
 
-    #After the main record was saved, we can save its settings.
-    #This is necessary as the record might have been a new record
-    #without an ID yet
+    # After the main record was saved, we can save its settings.
+    # This is necessary as the record might have been a new record
+    # without an ID yet
     base.after_save do
       settings.send(:persist!)
     end
@@ -84,8 +84,28 @@ module SettingAccessors::Integration
     end
   end
 
-  def as_json(*args)
-    json = super(*args)
+  #
+  # Previously read setting values have to be refreshed if a record is reloaded.
+  # Without this, #reload'ing a record would not update its setting values to the
+  # latest database version if they were previously read.
+  #
+  # Example to demonstrate the problem with this override:
+  #   user = User.create(:a_boolean => true)
+  #   user_alias = User.find(user.id)
+  #   user.a_boolean = !user_alias.a_boolean
+  #   user.save
+  #   user_alias.reload
+  #   user_alias.a_boolean
+  #   #=> true
+  #
+  def reload(*)
+    super
+    @settings_accessor = nil
+    self
+  end
+
+  def as_json(*)
+    json = super
     SettingAccessors::Internal.setting_accessor_names(self.class).each do |setting_name|
       json[setting_name.to_s] = send(setting_name)
     end
