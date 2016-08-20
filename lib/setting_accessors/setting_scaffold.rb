@@ -159,7 +159,7 @@ module SettingAccessors::SettingScaffold
     def validation_errors(name, value, assignable = nil)
       s = self.new(:name => name, :value => value, :assignable => assignable)
       s.valid?
-      s.errors.get(:value) || []
+      s.errors[:value] || []
     end
   end
 
