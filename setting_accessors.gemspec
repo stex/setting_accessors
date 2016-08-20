@@ -26,5 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'minitest', '~> 5.5'
   spec.add_development_dependency 'byebug', '~> 3.5'
 
-  spec.add_dependency 'rails', '~> 4.1'
+  spec.add_dependency 'rails', ['>= 4.1', '< 5.1']
 end
