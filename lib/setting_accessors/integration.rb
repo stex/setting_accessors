@@ -104,9 +104,17 @@ module SettingAccessors::Integration
     self
   end
 
-  def as_json(*)
-    json = super
-    SettingAccessors::Internal.setting_accessor_names(self.class).each do |setting_name|
+  def as_json(options = {})
+    json = super options
+
+    setting_names = SettingAccessors::Internal.setting_accessor_names(self.class)
+    if only = options[:only]
+      setting_names &= Array(only).map(&:to_s)
+    elsif except = options[:except]
+      setting_names -= Array(except).map(&:to_s)
+    end
+
+    setting_names.each do |setting_name|
       json[setting_name.to_s] = send(setting_name)
     end
     json

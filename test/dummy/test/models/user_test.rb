@@ -17,6 +17,48 @@ class UserTest < ActiveSupport::TestCase
         assert_equal @user.as_json[setting_name.to_s], @user.send(setting_name)
       end
     end
+
+    context 'when using as_json with option :only' do
+      context 'set to a class attribute name' do
+        should 'not include any setting accessors' do
+          json = @user.as_json :only => [:first_name]
+          SettingAccessors::Internal.setting_accessor_names(User).each do |setting_name|
+            assert_not_includes json.keys, setting_name
+          end
+        end
+      end
+
+      context 'set to a setting accessor name' do
+        should 'not include other setting accessors' do
+          json = @user.as_json :only => [:a_string]
+          assert_includes json.keys, 'a_string'
+          (SettingAccessors::Internal.setting_accessor_names(User) - ['a_string']).each do |setting_name|
+            assert_not_includes json.keys, setting_name
+          end
+        end
+      end
+    end
+
+    context 'when using as_json with option :except' do
+      context 'set to a class attribute name' do
+        should 'include all setting accessors' do
+          json = @user.as_json :except => [:first_name]
+          SettingAccessors::Internal.setting_accessor_names(User).each do |setting_name|
+            assert_includes json.keys, setting_name
+          end
+        end
+      end
+
+      context 'set to a setting accessor name' do
+        should 'include all other setting accessors' do
+          json = @user.as_json :except => [:a_string]
+          assert_not_includes json.keys, 'a_string'
+          (SettingAccessors::Internal.setting_accessor_names(User) - ['a_string']).each do |setting_name|
+            assert_includes json.keys, setting_name
+          end
+        end
+      end
+    end
   end
 
   context 'Boolean getter methods' do
