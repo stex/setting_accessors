@@ -76,8 +76,12 @@ module SettingAccessors
     #   - If it's a setting defined in a setting_accessor call, the information is taken from this call
     #   - Otherwise, an empty hash is returned
     #
-    def self.setting_data(setting_name, assignable = nil)
-      (assignable && self.get_class_setting(assignable.class, setting_name)) ||
+    def self.setting_data(setting_name, assignable_class = nil)
+      # As a convenience function (and to keep the existing code working),
+      # it is possible to provide a class or an instance of said class
+      assignable_class &&= assignable_class.class unless assignable_class.is_a?(Class)
+
+      (assignable_class && self.get_class_setting(assignable_class, setting_name)) ||
           self.global_config[setting_name.to_s] ||
           {}
     end
