@@ -21,8 +21,8 @@ tmp
 *.a
 mkmf.log
 
-#Rubymine
-.idea
+# RVM
+.ruby-version
 
 #Dummy Application
 test/dummy/log
