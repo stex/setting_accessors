@@ -3,47 +3,7 @@
 #
 module SettingAccessors
   module Internal
-
-    def self.ensure_nested_hash!(hash, *keys)
-      h = hash
-      keys.each do |key|
-        h[key] ||= {}
-        h = h[key]
-      end
-    end
-
-    def self.lookup_nested_hash(hash, *keys)
-      return nil if hash.nil?
-
-      h = hash
-      keys.each do |key|
-        return nil if h[key].nil?
-        h = h[key]
-      end
-      h
-    end
-
-    #
-    # Loads information about all settings from YAML file
-    # These are cached in the class so they don't have to be reloaded
-    # every time.
-    #
-    # Note: For development / test, this is flushed every time
-    #
-    def self.global_config
-      if Rails.env.test? || Rails.env.development?
-        (YAML.load(File.open(Rails.root.join('config/settings.yml'))) || {}).deep_stringify_keys
-      else
-        @@config ||= (YAML.load(File.open(Rails.root.join('config/settings.yml'))) || {}).deep_stringify_keys
-      end
-    end
-
-    #
-    # @return [TrueClass, FalseClass] +true+ if the setting is defined in config/settings.yml
-    #
-    def self.globally_defined_setting?(setting_name)
-      self.global_config[setting_name.to_s].present?
-    end
+    extend Helpers
 
     #
     # Sets a class-specific setting
@@ -55,15 +15,10 @@ module SettingAccessors
       @@class_settings ||= {}
 
       #If there are no options given, the setting *has* to be defined globally.
-      if options.empty? && !self.globally_defined_setting?(setting_name)
-        raise ArgumentError.new "The setting '#{setting_name}' in model '#{klass.to_s}' is neither globally defined nor did it receive options"
-
-      #A setting which is already globally defined, may not be re-defined on class base
-      elsif self.globally_defined_setting?(setting_name) && options.any?
-        raise ArgumentError.new("The setting #{setting_name} is already defined in config/settings.yml and may not be redefined in #{klass}")
-
+      if options.empty?
+        raise ArgumentError.new "The setting '#{setting_name}' in model '#{klass.to_s}' is lacking options."
       #If the setting is defined on class base, we have to store its options
-      elsif options.any? && !self.globally_defined_setting?(setting_name)
+      else
         self.ensure_nested_hash!(@@class_settings, klass.to_s)
         @@class_settings[klass.to_s][setting_name.to_s] = options.deep_stringify_keys
       end

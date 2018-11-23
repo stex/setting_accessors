@@ -1,189 +1,184 @@
 #
 # Helper class to make accessing record specific settings easier
 #
-class SettingAccessors::Accessor
+module SettingAccessors
+  class Accessor
+    include ::SettingAccessors::Helpers
 
-  def initialize(record)
-    @record        = record
-    @temp_settings = {}
-  end
+    attr_reader :record
 
-  #
-  # Tries to retrieve the given setting's value from the temp settings
-  # (already read/written values in this instance). If the setting hasn't been
-  # used before, its value is retrieved from the database.
-  #
-  # If a setting hasn't been read by this record (instance) before, its value
-  # is stored in the local read set.
-  #
-  # TODO: See if this causes problems with read settings not being updated by external changes.
-  #       User1: Read Setting X
-  #       User2: Update Setting X
-  #       User1: Read Setting X -> Gets old value from temp settings.
-  #   This shouldn't be too dangerous as the system state will be refreshed with every request though.
-  #
-  def [](key)
-    return @temp_settings[key.to_sym] if has_key?(key)
-    value = SettingAccessors.setting_class.get(key, @record)
-    @temp_settings[key.to_sym] = value unless value.nil?
-    value
-  end
-
-  #
-  # Tries to fetch a setting value using the provided key and #[].
-  # It will only return the +default+ value if there is
-  #   - no temporary setting with the given key AND
-  #   - no already persisted setting (see #[])
-  #
-  def fetch(key, default = nil)
-    result = self[key]
-    return default if result.nil? && !has_key?(key)
-    result
-  end
-
-  #
-  # Like #fetch, but it will store the default value as a temporary setting
-  # if no actual setting value could be found. This is useful to further work
-  # with default setting values.
-  # The default value is cloned (using #dup to avoid copying object states) before
-  # it is assigned. This will not work for singleton instances like true, false, etc.
-  #
-  def fetch_and_store(key, default = nil)
-    result = self[key]
-    if result.nil? && !has_key?(key)
-      self[key] = default.duplicable? ? default.dup : default
-    else
-      result
+    def initialize(record)
+      @record = record
+      @temp_settings = {}
     end
-  end
 
-  def has_key?(key)
-    @temp_settings.has_key?(key.to_sym)
-  end
-
-  #
-  # Writes a setting's value
-  #
-  def []=(key, val)
-    set_value_before_type_cast(key, val)
-    @temp_settings[key.to_sym] = SettingAccessors::Internal.converter(value_type(key)).convert(val)
-  end
-
-  #
-  # Tries to find a setting for this record.
-  # If none is found, will return the default setting value
-  # specified in the setting config file.
-  #
-  def get_or_default(key)
-    fetch_and_store(key, SettingAccessors.setting_class.get_or_default(key, @record))
-  end
-
-  #
-  # Tries to find a setting for this record first.
-  # If none is found, tries to find a global setting with the same name
-  #
-  def get_or_global(key)
-    fetch_and_store(key, SettingAccessors.setting_class.get(key))
-  end
-
-  #
-  # Tries to find a setting for this record first,
-  # if none is found, it will return the given value instead.
-  #
-  def get_or_value(key, value)
-    fetch_and_store(key, value)
-  end
-
-  def get_with_fallback(key, fallback = nil)
-    return self[key] if fallback.nil?
-
-    case fallback.to_s
-      when 'default' then get_or_default(key)
-      when 'global'  then get_or_global(key)
-      else get_or_value(key, fallback)
+    #
+    # Tries to retrieve the given setting's value from the temp settings
+    # (already read/written values in this instance). If the setting hasn't been
+    # used before, its value is retrieved from the database.
+    #
+    # If a setting hasn't been read by this record (instance) before, its value
+    # is stored in the local read set.
+    #
+    # TODO: See if this causes problems with read settings not being updated by external changes.
+    #       User1: Read Setting X
+    #       User2: Update Setting X
+    #       User1: Read Setting X -> Gets old value from temp settings.
+    #   This shouldn't be too dangerous as the system state will be refreshed with every request though.
+    #
+    # @param [Boolean] skip_cached
+    #   If set to +true+, the setting value is freshly loaded from the database,
+    #   even if a value that's not yet persisted exists.
+    #
+    def [](key, skip_cached: false)
+      return @temp_settings[key.to_sym] if !skip_cached && has_key?(key)
+      value = SettingAccessors.setting_class.get(key, record)
+      @temp_settings[key.to_sym] = value unless value.nil?
+      value
     end
-  end
 
-  #
-  # @return [String] the setting's value type in the +@record+'s context
-  #
-  def value_type(key)
-    SettingAccessors::Internal.setting_value_type(key, @record)
-  end
+    alias_method :get, :[]
 
-  #----------------------------------------------------------------
-  #               ActiveRecord Helper Methods Emulation
-  #----------------------------------------------------------------
-
-  def value_was(key, fallback = nil)
-    return SettingAccessors.setting_class.get(key, @record) if fallback.nil?
-
-    case fallback.to_s
-      when 'default' then SettingAccessors.setting_class.get_or_default(key, @record)
-      when 'global'  then SettingAccessors.setting_class.get(key)
-      else fallback
+    def has_key?(key)
+      @temp_settings.has_key?(key.to_sym)
     end
-  end
 
-  def value_changed?(key)
-    self[key] != value_was(key)
-  end
+    #
+    # Writes a setting's value
+    #
+    def []=(key, val)
+      set_value_was(key)
+      set_value_before_type_cast(key, val)
+      @temp_settings[key.to_sym] = SettingAccessors::Internal.converter(value_type(key)).convert(val)
+    end
 
-  def value_before_type_cast(key)
-    SettingAccessors::Internal.lookup_nested_hash(@values_before_type_casts, key.to_s) || self[key]
-  end
+    alias_method :set, :[]=
 
-  protected
+    #
+    # Tries to find a setting for this record.
+    # If none is found, will return the default setting value
+    # specified in the setting accessor call
+    #
+    # @param [Boolean] store_default
+    #   If set to +true+, the setting's default value is written to the temporary settings
+    #   for faster access. Otherwise, a database lookup is performed every time.
+    #
+    # @param [Boolean] skip_cached
+    #   If set to +true+, a possible temporary setting is skipped when looking up the value.
+    #   This means, the default value is returned even if there is a not yet persisted change to the setting.
+    #
+    def get_or_default(key, store_default: true, skip_cached: false)
+      result = get(key, skip_cached: skip_cached)
+      return result if result || (has_key?(key) && !skip_cached)
 
-  #
-  # Keeps a record of the originally set value for a setting before it was
-  # automatically converted.
-  #
-  def set_value_before_type_cast(key, value)
-    @values_before_type_casts ||= {}
-    @values_before_type_casts[key.to_s] = value
-  end
+      try_dup(SettingAccessors.setting_class.get_or_default(key, record)).tap do |value|
+        set(key, value) if store_default
+      end
+    end
 
-  #
-  # Validates the new setting values.
-  # If there is an accessor for the setting, the errors will be
-  # directly forwarded to it, otherwise to :base
-  #
-  # Please do not call this method directly, use the IntegrationValidator
-  # class instead, e.g.
-  #
-  #   validates_with SettingAccessors::IntegrationValidator
-  #
-  def validate!
-    @temp_settings.each do |key, value|
-      validation_errors = SettingAccessors.setting_class.validation_errors(key, value, @record)
-      validation_errors.each do |message|
-        if @record.respond_to?("#{key}=")
-          @record.errors.add(key, message)
-        else
-          @record.errors.add :base, :invalid_setting, :name => key, :message => message
+    #
+    # @return [String] the setting's value type in the +record+'s context
+    #
+    def value_type(key)
+      SettingAccessors::Internal.setting_value_type(key, record)
+    end
+
+    #----------------------------------------------------------------
+    #               ActiveRecord Helper Methods Emulation
+    #----------------------------------------------------------------
+
+    #
+    # @return [Object] the value the given setting had after it was last persisted
+    #
+    def value_was(key)
+      lookup_nested_hash(@old_values, key.to_s)
+    rescue NestedHashKeyNotFoundException
+      get(key)
+    end
+
+    def value_changed?(key)
+      get(key) != value_was(key)
+    end
+
+    def value_before_type_cast(key)
+      lookup_nested_hash(@values_before_type_casts, key.to_s)
+    rescue NestedHashKeyNotFoundException
+      get(key)
+    end
+
+    protected
+
+    #
+    # Keeps a record of the originally set value for a setting before it was
+    # automatically converted.
+    #
+    def set_value_before_type_cast(key, value)
+      @values_before_type_casts ||= {}
+      @values_before_type_casts[key.to_s] = value
+    end
+
+    #
+    # Keeps a local copy of a setting's value before it was overridden.
+    # Once the setting is persisted, this value is cleared.
+    #
+    def set_value_was(key)
+      @old_values ||= {}
+
+      unless @old_values.key?(key.to_s)
+        @old_values[key.to_s] = get_or_default(key, skip_cached: true, store_default: false)
+      end
+    end
+
+    #
+    # Validates the new setting values.
+    # If there is an accessor for the setting, the errors will be
+    # directly forwarded to it, otherwise to :base
+    #
+    # Please do not call this method directly, use the IntegrationValidator
+    # class instead, e.g.
+    #
+    #   validates_with SettingAccessors::IntegrationValidator
+    #
+    def validate!
+      @temp_settings.each do |key, value|
+        validation_errors = SettingAccessors.setting_class.validation_errors(key, value, record)
+        validation_errors.each do |message|
+          if record.respond_to?("#{key}=")
+            record.errors.add(key, message)
+          else
+            record.errors.add :base, :invalid_setting, :name => key, :message => message
+          end
         end
       end
     end
-  end
 
-  #
-  # Saves the new setting values into the database
-  # Please note that there is no check if the values changed their
-  # in the meantime.
-  #
-  # Also, this method expects that the settings were validated
-  # before using #validate! and will therefore not perform
-  # validations itself.
-  #
-  def persist!
-    @temp_settings.each do |key, value|
-      Setting.create_or_update(key, value, @record)
+    #
+    # @return [Object] the duplicated value if it is in fact duplicable. The actual value otherwise
+    #
+    def try_dup(value)
+      value.duplicable? ? value.dup : value
     end
-    flush!
-  end
 
-  def flush!
-    @temp_settings = {}
+    #
+    # Saves the new setting values into the database
+    # Please note that there is no check if the values changed their
+    # in the meantime.
+    #
+    # Also, this method expects that the settings were validated
+    # before using #validate! and will therefore not perform
+    # validations itself.
+    #
+    def persist!
+      @temp_settings.each do |key, value|
+        Setting.create_or_update(key, value, record)
+      end
+      flush!
+    end
+
+    def flush!
+      @temp_settings = {}
+      @values_before_type_casts = {}
+      @old_values = {}
+    end
   end
 end
