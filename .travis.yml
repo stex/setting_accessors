@@ -4,6 +4,7 @@ cache: bundler
 rvm:
   - 2.2
   - 2.3.1
+  - 2.5.0
 
 env:
   - DISABLE_DATABASE_ENVIRONMENT_CHECK=1

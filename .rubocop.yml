@@ -1,0 +1,3 @@
+AllCops:
+  TargetRailsVersion: 5.0
+  TargetRubyVersion: 2.5
