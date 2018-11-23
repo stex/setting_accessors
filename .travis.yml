@@ -9,7 +9,6 @@ env:
   - DISABLE_DATABASE_ENVIRONMENT_CHECK=1
 
 before_install: 'gem install bundler'
-before_script: bundle exec rubocop --parallel
 script: 'bundle exec rake'
 
 notifications:
