@@ -42,8 +42,8 @@ module SettingAccessors::SettingScaffold
     # the setting's default value is returned.
     #
     def get_or_default(name, assignable = nil)
-      if (val = self[name, assignable]).nil?
-        self.new(:name => name, :assignable => assignable).default_value
+      if (val = get(name, assignable)).nil?
+        new(name: name, assignable: assignable).default_value
       else
         val
       end
