@@ -81,6 +81,19 @@ module SettingAccessors::Integration
     self
   end
 
+  #
+  # Adds changed settings to ActiveModel's list of changed attributes.
+  # This is necessary for #changed? to work correctly without actually overriding
+  # the method itself.
+  #
+  # TODO: Check if it makes more sense to hook into AR5's AttributeMutationTracker instead
+  #
+  # @return [Hash] All changed attributes
+  #
+  def changed_attributes
+    super.merge(settings.changed_values)
+  end
+
   def as_json(options = {})
     super.tap do |json|
       setting_names = SettingAccessors::Internal.setting_accessor_names(self.class)

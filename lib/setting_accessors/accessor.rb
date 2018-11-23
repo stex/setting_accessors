@@ -106,6 +106,10 @@ module SettingAccessors
       get(key)
     end
 
+    def changed_values
+      @temp_settings.select { |k, _| value_changed?(k) }
+    end
+
     protected
 
     #
