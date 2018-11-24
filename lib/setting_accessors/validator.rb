@@ -79,10 +79,10 @@ class SettingAccessors::Validator < ActiveModel::Validator
   # in settings.yml
   #
   def validate_numericality(record, options)
-    #Test if the value is Numeric in any way (float or int)
+    # Test if the value is Numeric in any way (float or int)
     add_error_if(!parse_value_as_numeric(record.value), record, :not_a_number) && return
 
-    #If the validation was set to check for integer values, do that as well
+    # If the validation was set to check for integer values, do that as well
     add_error_if(options['only_integer'] && !parse_value_as_fixnum(record.value), record, :not_an_integer)
   end
 

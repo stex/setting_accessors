@@ -46,17 +46,17 @@ module SettingAccessors::Integration
         settings[setting_name] = new_value
       end
 
-      #NAME_was
+      # NAME_was
       define_method("#{setting_name}_was") do
         settings.value_was(setting_name)
       end
 
-      #NAME_before_type_cast
+      # NAME_before_type_cast
       define_method("#{setting_name}_before_type_cast") do
         settings.value_before_type_cast(setting_name)
       end
 
-      #NAME_changed?
+      # NAME_changed?
       define_method("#{setting_name}_changed?") do
         settings.value_changed?(setting_name)
       end

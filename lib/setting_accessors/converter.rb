@@ -26,11 +26,11 @@ class SettingAccessors::Converter
   # Converts the setting's value to the correct type
   #
   def convert(new_value)
-    #If the value is set to be polymorphic, we don't have to convert anything.
+    # If the value is set to be polymorphic, we don't have to convert anything.
     return new_value if @value_type.to_s == 'polymorphic'
 
-    #ActiveRecord only converts non-nil values to their database type
-    #during assignment
+    # ActiveRecord only converts non-nil values to their database type
+    # during assignment
     return new_value if new_value.nil?
 
     parse_method = :"parse_#{@value_type}"

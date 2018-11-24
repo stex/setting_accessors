@@ -20,10 +20,10 @@ module SettingAccessors
     # by using setting_accessor in your model class
     #
     def self.set_class_setting(klass, setting_name, options = {})
-      #If there are no options given, the setting *has* to be defined globally.
+      # If there are no options given, the setting *has* to be defined globally.
       if options.empty?
         raise ArgumentError.new "The setting '#{setting_name}' in model '#{klass.to_s}' is lacking options."
-      #If the setting is defined on class base, we have to store its options
+      # If the setting is defined on class base, we have to store its options
       else
         ensure_nested_hash!(class_settings, klass.to_s)
         class_settings[klass.to_s][setting_name.to_s] = options.deep_stringify_keys
