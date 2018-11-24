@@ -11,7 +11,7 @@
 #
 
 module SettingAccessors
-  class IntegrationValidator < ActiveModel::Validator
+  class IntegrationValidator < ::ActiveModel::Validator
     def validate(record)
       record.settings.send(:validate!)
     end

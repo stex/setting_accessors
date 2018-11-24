@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'active_record'
+require 'active_model/validations'
+
 require 'setting_accessors/version'
 require 'setting_accessors/helpers'
 require 'setting_accessors/accessor'
