@@ -174,7 +174,7 @@ module SettingAccessors
     #
     def persist!
       @temp_settings.each do |key, value|
-        Setting.create_or_update(key, value, record)
+        Setting.set(key, value, assignable: record)
       end
       flush!
     end
