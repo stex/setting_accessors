@@ -102,7 +102,7 @@ describe SettingAccessors::SettingScaffold, type: :model do
         let!(:setting) { Setting.create!(name: 'foo', value: 'bar') }
 
         it 'updates the existing setting' do
-          expect { Setting.set('foo', 'baz') }.not_to change { Setting.count }
+          expect { Setting.set('foo', 'baz') }.not_to(change { Setting.count })
           expect(setting.reload.value).to eql 'baz'
         end
       end
@@ -122,7 +122,7 @@ describe SettingAccessors::SettingScaffold, type: :model do
         let!(:setting) { Setting.create!(name: 'foo', value: 'bar', assignable: assignable) }
 
         it 'updates the existing setting' do
-          expect { Setting.set('foo', 'baz', assignable: assignable) }.not_to change { Setting.count }
+          expect { Setting.set('foo', 'baz', assignable: assignable) }.not_to(change { Setting.count })
           expect(setting.reload.value).to eql 'baz'
         end
       end

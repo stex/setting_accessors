@@ -11,7 +11,7 @@ class SettingAccessors::Validator < ActiveModel::Validator
       elsif built_in_validation?(key)
         send("validate_#{key}", record, requirement)
       else
-        raise ArgumentError.new("The invalid validation '#{key}' was given in model '#{defining_model(record).to_s}'")
+        raise ArgumentError, "The invalid validation '#{key}' was given in model '#{defining_model(record).to_s}'"
       end
     end
   end
@@ -38,10 +38,10 @@ class SettingAccessors::Validator < ActiveModel::Validator
       if defining_model(record).respond_to?(proc)
         defining_model(record).send(proc)
       else
-        raise ArgumentError.new "The method '#{proc}' was set up as validation method in model '#{defining_model(record).name}', but doesn't exist."
+        raise ArgumentError, "The method '#{proc}' was set up as validation method in model '#{defining_model(record).name}', but doesn't exist."
       end
     else
-      raise ArgumentError.new "An invalid validations method was given ('#{proc}')"
+      raise ArgumentError, "An invalid validations method was given ('#{proc}')"
     end
   end
 
