@@ -16,37 +16,38 @@
 #
 # If the type is 'polymorphic', it is not converted at all.
 #
-class SettingAccessors::Converter
+module SettingAccessors
+  class Converter
 
-  def initialize(value_type)
-    @value_type = value_type
-  end
-
-  #
-  # Converts the setting's value to the correct type
-  #
-  def convert(new_value)
-    # If the value is set to be polymorphic, we don't have to convert anything.
-    return new_value if @value_type.to_s == 'polymorphic'
-
-    # ActiveRecord only converts non-nil values to their database type
-    # during assignment
-    return new_value if new_value.nil?
-
-    parse_method = :"parse_#{@value_type}"
-
-    if private_methods.include?(parse_method)
-      send(parse_method, new_value)
-    else
-      Rails.logger.warn("Invalid Setting type: #{@value_type}")
-      new_value
+    def initialize(value_type)
+      @value_type = value_type
     end
-  end
 
-  private
+    #
+    # Converts the setting's value to the correct type
+    #
+    def convert(new_value)
+      # If the value is set to be polymorphic, we don't have to convert anything.
+      return new_value if @value_type.to_s == 'polymorphic'
 
-  def parse_boolean(value)
-    case value
+      # ActiveRecord only converts non-nil values to their database type
+      # during assignment
+      return new_value if new_value.nil?
+
+      parse_method = :"parse_#{@value_type}"
+
+      if private_methods.include?(parse_method)
+        send(parse_method, new_value)
+      else
+        Rails.logger.warn("Invalid Setting type: #{@value_type}")
+        new_value
+      end
+    end
+
+    private
+
+    def parse_boolean(value)
+      case value
       when TrueClass, FalseClass
         value
       when String
@@ -59,15 +60,15 @@ class SettingAccessors::Converter
         nil
       else
         nil
+      end
+    end
+
+    def parse_integer(value)
+      value.to_i
+    end
+
+    def parse_string(value)
+      value.to_s
     end
   end
-
-  def parse_integer(value)
-    value.to_i
-  end
-
-  def parse_string(value)
-    value.to_s
-  end
-
 end

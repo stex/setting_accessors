@@ -10,8 +10,10 @@
 # for Rails' validation chain
 #
 
-class SettingAccessors::IntegrationValidator < ActiveModel::Validator
-  def validate(record)
-    record.settings.send(:validate!)
+module SettingAccessors
+  class IntegrationValidator < ActiveModel::Validator
+    def validate(record)
+      record.settings.send(:validate!)
+    end
   end
 end
