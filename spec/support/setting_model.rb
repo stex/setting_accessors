@@ -7,7 +7,7 @@ module SettingModel
         t.belongs_to :assignable, polymorphic: true, index: false
         t.string :name
         t.text :value
-        t.timestamps
+        t.timestamps null: false
       end
 
       model do
