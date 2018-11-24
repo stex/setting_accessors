@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'generator_spec'
-require "generators/setting_accessors/install_generator"
+require 'generators/setting_accessors/install_generator'
 
 describe SettingAccessors::Generators::InstallGenerator, type: :generator do
-  destination File.expand_path('../dummy/tmp', File.dirname(__FILE__))
+  destination File.expand_path('../../../tmp', File.dirname(__FILE__))
 
   before(:all) do
     prepare_destination
