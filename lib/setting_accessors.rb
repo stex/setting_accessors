@@ -16,7 +16,7 @@ end
 
 module SettingAccessors
   def self.setting_class
-    self.setting_class_name.constantize
+    setting_class_name.constantize
   end
 
   def self.setting_class=(klass)

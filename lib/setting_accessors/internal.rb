@@ -25,7 +25,7 @@ module SettingAccessors
         raise ArgumentError.new "The setting '#{setting_name}' in model '#{klass.to_s}' is lacking options."
       #If the setting is defined on class base, we have to store its options
       else
-        self.ensure_nested_hash!(class_settings, klass.to_s)
+        ensure_nested_hash!(class_settings, klass.to_s)
         class_settings[klass.to_s][setting_name.to_s] = options.deep_stringify_keys
       end
     end
@@ -41,14 +41,14 @@ module SettingAccessors
       # As a convenience function (and to keep the existing code working),
       # it is possible to provide a class or an instance of said class
       assignable_class &&= assignable_class.class unless assignable_class.is_a?(Class)
-      (assignable_class && self.get_class_setting(assignable_class, setting_name)) || {}
+      (assignable_class && get_class_setting(assignable_class, setting_name)) || {}
     end
 
     #
     # @return [String] the given setting's value type
     #
     def self.setting_value_type(*args)
-      self.setting_data(*args)['type'] || 'polymorphic'
+      setting_data(*args)['type'] || 'polymorphic'
     end
 
     #
@@ -84,7 +84,7 @@ module SettingAccessors
     #
     def self.setting_accessor_names(klass)
       @@setting_accessor_names ||= {}
-      self.lookup_nested_hash(@@setting_accessor_names, klass.to_s) || []
+      lookup_nested_hash(@@setting_accessor_names, klass.to_s) || []
     end
 
   end

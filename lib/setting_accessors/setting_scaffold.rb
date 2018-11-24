@@ -34,7 +34,7 @@ module SettingAccessors::SettingScaffold
     #   If not, +nil+ is returned.
     #
     def get(name, assignable = nil)
-      self.setting_record(name, assignable).try(:value)
+      setting_record(name, assignable).try(:value)
     end
 
     alias_method :[], :get
@@ -86,7 +86,7 @@ module SettingAccessors::SettingScaffold
     # @return [Object] the default value for the given setting
     #
     def get_default_value(name, assignable = nil)
-      self.new(name: name, assignable: assignable).default_value
+      new(name: name, assignable: assignable).default_value
     end
 
     #
@@ -97,7 +97,7 @@ module SettingAccessors::SettingScaffold
     # @return [Setting, NilClass] The found setting or nil if not existing
     #
     def setting_record(name, assignable = nil)
-      self.find_by(name: name.to_s, assignable: assignable)
+      find_by(name: name.to_s, assignable: assignable)
     end
 
     #
@@ -110,7 +110,7 @@ module SettingAccessors::SettingScaffold
     # @return [Array<String>] The validation errors for the setting's value
     #
     def validation_errors(name, value, assignable = nil)
-      s = self.new(name: name, value: value, assignable: assignable)
+      s = new(name: name, value: value, assignable: assignable)
       s.valid?
       s.errors[:value] || []
     end
@@ -163,8 +163,8 @@ module SettingAccessors::SettingScaffold
   # in 'settings.global.NAME'
   #
   def i18n_lookup(key, options = {})
-    options[:scope] = [:settings, :global, self.name]
-    options[:scope] = [:settings, self.assignable.class.to_s.underscore, self.name] unless SettingAccessors::Internal.globally_defined_setting?(self.name)
+    options[:scope] = [:settings, :global, name]
+    options[:scope] = [:settings, assignable.class.to_s.underscore, name] unless SettingAccessors::Internal.globally_defined_setting?(name)
     I18n.t(key, options)
   end
 
@@ -191,7 +191,7 @@ module SettingAccessors::SettingScaffold
   # shadow ActiveRecord's default one - which might still be needed.
   #
   def original_value
-    @original_value || self.value
+    @original_value || value
   end
 
   #
