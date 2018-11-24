@@ -12,8 +12,8 @@ module SettingAccessors::SettingScaffold
     base.serialize :value
 
     base.validates :name,
-                   :uniqueness => {:scope => [:assignable_type, :assignable_id]},
-                   :presence   => true
+                   uniqueness: {scope: [:assignable_type, :assignable_id]},
+                   presence: true
   end
 
   module ClassMethods
@@ -84,7 +84,7 @@ module SettingAccessors::SettingScaffold
     # @return [Object] the default value for the given setting
     #
     def get_default_value(name, assignable = nil)
-      self.new(:name => name, :assignable => assignable).default_value
+      self.new(name: name, assignable: assignable).default_value
     end
 
     #
@@ -95,7 +95,7 @@ module SettingAccessors::SettingScaffold
     # @return [Setting, NilClass] The found setting or nil if not existing
     #
     def setting_record(name, assignable = nil)
-      self.find_by(:name => name.to_s, :assignable => assignable)
+      self.find_by(name: name.to_s, assignable: assignable)
     end
 
     #
@@ -108,7 +108,7 @@ module SettingAccessors::SettingScaffold
     # @return [Array<String>] The validation errors for the setting's value
     #
     def validation_errors(name, value, assignable = nil)
-      s = self.new(:name => name, :value => value, :assignable => assignable)
+      s = self.new(name: name, value: value, assignable: assignable)
       s.valid?
       s.errors[:value] || []
     end

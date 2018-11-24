@@ -5,7 +5,7 @@ module SettingAccessors
 
       source_root File.expand_path('../templates', __FILE__)
 
-      argument :model_name, :type => :string, :default => 'Setting'
+      argument :model_name, type: :string, default: 'Setting'
 
       def self.next_migration_number(path)
         if @prev_migration_nr

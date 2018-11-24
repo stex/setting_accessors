@@ -11,7 +11,7 @@ module SettingModel
       end
 
       model do
-        belongs_to :assignable, :polymorphic => true
+        belongs_to :assignable, polymorphic: true
         serialize :value
         include SettingAccessors::SettingScaffold
 

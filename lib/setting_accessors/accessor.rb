@@ -150,7 +150,7 @@ module SettingAccessors
           if record.respond_to?("#{key}=")
             record.errors.add(key, message)
           else
-            record.errors.add :base, :invalid_setting, :name => key, :message => message
+            record.errors.add :base, :invalid_setting, name: key, message: message
           end
         end
       end
