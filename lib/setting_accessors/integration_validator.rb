@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # This class handles model validations for assigned records, e.g.
 # if the settings are accessed using the Accessor class in this module.

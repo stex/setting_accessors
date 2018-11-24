@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'setting_accessors/version'
 require 'setting_accessors/helpers'
 require 'setting_accessors/accessor'

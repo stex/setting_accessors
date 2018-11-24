@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # This class hopefully will hopefully one day mimic ActiveRecord's
 # attribute assigning methods, meaning that a conversion to the column type

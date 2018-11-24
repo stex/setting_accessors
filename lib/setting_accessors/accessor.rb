@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Helper class to make accessing record specific settings easier
 #

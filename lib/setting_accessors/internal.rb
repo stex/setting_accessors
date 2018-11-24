@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # This module contains class methods used internally.
 #

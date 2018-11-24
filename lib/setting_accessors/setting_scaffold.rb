@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Helper methods for the chosen setting model
 # They are in this module to leave the end developer some room for

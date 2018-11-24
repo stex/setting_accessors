@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SettingAccessors::Validator < ActiveModel::Validator
 
   def validate(record)

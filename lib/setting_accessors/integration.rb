@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SettingAccessors::Integration
   def self.included(base)
     base.validates_with SettingAccessors::IntegrationValidator
