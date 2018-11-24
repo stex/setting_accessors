@@ -72,35 +72,13 @@ module SettingAccessors::SettingScaffold
     # @toto: Bless the rains down in Africa!
     #
     def set(name, value, assignable: nil)
-      self.setting_record(name, assignable) || new(name: name, assignable: assignable).tap do |setting|
+      (setting_record(name, assignable) || new(name: name, assignable: assignable)).tap do |setting|
         setting.set_value(value)
         setting.save
       end.value
     end
 
     alias_method :[]=, :set
-
-    #
-    # Creates a new setting for the given name and assignable,
-    # using the setting's default value stored in the config file
-    #
-    # If the setting already exists, its value will not be overridden
-    #
-    # @param [String] name
-    #   The setting's name
-    #
-    # @param [ActiveRecord::Base] assignable
-    #   An optional assignable
-    #
-    # @example Create a global default setting 'meaning_of_life'
-    #   Setting.create_default_setting(:meaning_of_life)
-    #
-    # @example Create a default setting for all users in the system
-    #   User.all.each { |u| Setting.create_default_setting(:some_setting, u) }
-    #
-    def create_default_setting(name, assignable = nil)
-      self.create_or_update(name, self.get_or_default(name, assignable), assignable)
-    end
 
     #
     # @return [Object] the default value for the given setting
@@ -149,13 +127,13 @@ module SettingAccessors::SettingScaffold
     #   #+some_cool_user+ is here an instance of ActiveRecord::Base
     #   Setting.cool_setting(some_cool_user)
     #
-    def method_missing(method, *args)
+    def method_missing(method, *args, &block)
       method_name = method.to_s
 
       if method_name.last == '='
         set(method_name[0..-2], args.first)
       else
-        return super(method, *args) if args.size > 1
+        return super(method, *args, &block) if args.size > 1
         get(method_name, args.first)
       end
     end

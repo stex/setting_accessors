@@ -18,4 +18,3 @@ notifications:
       - stex@sterex.de
     on_failure: change
     on_success: never
-
