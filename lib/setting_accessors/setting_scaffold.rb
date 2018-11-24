@@ -31,17 +31,19 @@ module SettingAccessors::SettingScaffold
     #   If a setting is found, **its value** is returned.
     #   If not, +nil+ is returned.
     #
-    def [](name, assignable = nil)
+    def get(name, assignable = nil)
       self.setting_record(name, assignable).try(:value)
     end
 
-    alias_method :get, :[]
+    alias_method :[], :get
 
     #
     # Tries to look the setting up using #get, if no existing setting is found,
     # the setting's default value is returned.
     #
-    def get_or_default(name, assignable = nil)
+    # This only works for class-wise settings, meaning that an assignable has to be present.
+    #
+    def get_or_default(name, assignable)
       if (val = get(name, assignable)).nil?
         new(name: name, assignable: assignable).default_value
       else
@@ -65,47 +67,18 @@ module SettingAccessors::SettingScaffold
     # @param [Boolean] return_value
     #   If set to +true+, only the setting's value is returned
     #
-    # @return [Object, Setting]
-    #   Depending on +return_value+ either the newly created Setting record
-    #   or the newly assigned value.
-    #   This is due to the fact that Setting.my_setting = 'something' should
-    #   show the same behaviour as other attribute assigns in the system while
-    #   you  might still want to get validation errors on custom settings.
-    #
-    #   Please note that - if +return_value+ is set to +true+,
-    #   #save! is used instead of #save to ensure that validation
-    #   errors are noticed by the programmer / user.
-    #   As this is usually only the case when coming from method_missing,
-    #   it should not happen anyways
+    # @return [Object] The newly set value
     #
     # @toto: Bless the rains down in Africa!
     #
-    def create_or_update(name, value, assignable = nil, return_value = false)
-      setting       = self.setting_record(name, assignable)
-      setting     ||= self.new(:name => name, :assignable => assignable)
-      setting.set_value(value)
-
-      if return_value
-        setting.save!
-        setting.value
-      else
+    def set(name, value, assignable: nil)
+      self.setting_record(name, assignable) || new(name: name, assignable: assignable).tap do |setting|
+        setting.set_value(value)
         setting.save
-        setting
-      end
+      end.value
     end
 
-    #
-    # Shortcut for #create_or_update
-    #
-    # @param [String, Symbol] name
-    #   The setting's name
-    #
-    # The second argument is an optional assignable
-    #
-    def []=(name, *args)
-      assignable = args.size > 1 ? args.first : nil
-      self.create_or_update(name, args.last, assignable, true)
-    end
+    alias_method :[]=, :set
 
     #
     # Creates a new setting for the given name and assignable,
@@ -160,6 +133,31 @@ module SettingAccessors::SettingScaffold
       s = self.new(:name => name, :value => value, :assignable => assignable)
       s.valid?
       s.errors[:value] || []
+    end
+
+    #
+    # Makes accessing settings a little easier.
+    # Examples:
+    #
+    #   #Loading **the value** of a global setting named "my_setting"
+    #   Setting.my_setting
+    #
+    #   #Setting **the value** of a global setting named "my_setting"
+    #   Setting.my_setting = [1,2,3,4,5]
+    #
+    #   #Loading **the value** of an assigned setting named "cool_setting"
+    #   #+some_cool_user+ is here an instance of ActiveRecord::Base
+    #   Setting.cool_setting(some_cool_user)
+    #
+    def method_missing(method, *args)
+      method_name = method.to_s
+
+      if method_name.last == '='
+        set(method_name[0..-2], args.first)
+      else
+        return super(method, *args) if args.size > 1
+        get(method_name, args.first)
+      end
     end
   end
 
