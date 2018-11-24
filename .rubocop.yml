@@ -1,5 +1,4 @@
 AllCops:
-  TargetRailsVersion: 5.0
   TargetRubyVersion: 2.3
 
 #---------------------------------------------
@@ -71,6 +70,13 @@ Metrics/MethodLength:
 
 # Allow bigger modules
 Metrics/ModuleLength:
+  Enabled: false
+
+#---------------------------------------------
+#                   Naming
+#---------------------------------------------
+
+Naming/HeredocDelimiterNaming:
   Enabled: false
 
 #---------------------------------------------
