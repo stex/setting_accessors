@@ -19,7 +19,7 @@
 require 'active_record'
 
 # Hold the test sqlite database in memory without actually creating additional files
-ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+ActiveRecord::Base.establish_connection adapter: 'sqlite3', database: ':memory:'
 
 require 'with_model'
 require 'setting_accessors'
