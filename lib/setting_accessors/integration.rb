@@ -109,7 +109,10 @@ module SettingAccessors
 
     def _update_record(*)
       super.tap do |affected_rows|
-        @_setting_accessors_touch_assignable = affected_rows.zero?
+        # Workaround to trigger a #touch if necessary, see +after_save+ callback further up
+        if Gem.loaded_specs['activerecord'].version >= Gem::Version.create('5.1')
+          @_setting_accessors_touch_assignable = affected_rows.zero?
+        end
       end
     end
 
