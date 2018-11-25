@@ -1,5 +1,7 @@
 AllCops:
   TargetRubyVersion: 2.3
+  Exclude:
+    - tmp/**/*
 
 #---------------------------------------------
 #                   Layout
@@ -63,6 +65,8 @@ Metrics/LineLength:
 
 Metrics/BlockLength:
   Max: 75
+  Exclude:
+    - spec/**/*.rb
 
 # Allow longer methods
 Metrics/MethodLength:

@@ -3,8 +3,6 @@
 module SettingAccessors
   module Integration
     def self.included(base)
-      base.validates_with SettingAccessors::IntegrationValidator
-
       # After the main record was saved, we can save its settings.
       # This is necessary as the record might have been a new record
       # without an ID yet

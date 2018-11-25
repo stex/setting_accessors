@@ -11,7 +11,6 @@ module SettingAccessors
 
     def self.included(base)
       base.extend ClassMethods
-      base.validates_with SettingAccessors::Validator
       base.serialize :value
 
       base.validates :name,
@@ -99,21 +98,6 @@ module SettingAccessors
       #
       def setting_record(name, assignable = nil)
         find_by(name: name.to_s, assignable: assignable)
-      end
-
-      #
-      # Tests, if the given value would be valid for the given
-      # setting name. This is done in this class method due to
-      # the process of setting creation through assigned records
-      # which does not allow going the "normal" way of testing whether
-      # a setting was saved correctly or not.
-      #
-      # @return [Array<String>] The validation errors for the setting's value
-      #
-      def validation_errors(name, value, assignable = nil)
-        s = new(name: name, value: value, assignable: assignable)
-        s.valid?
-        s.errors[:value] || []
       end
 
       #

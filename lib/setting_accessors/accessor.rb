@@ -136,29 +136,6 @@ module SettingAccessors
     end
 
     #
-    # Validates the new setting values.
-    # If there is an accessor for the setting, the errors will be
-    # directly forwarded to it, otherwise to :base
-    #
-    # Please do not call this method directly, use the IntegrationValidator
-    # class instead, e.g.
-    #
-    #   validates_with SettingAccessors::IntegrationValidator
-    #
-    def validate!
-      @temp_settings.each do |key, value|
-        validation_errors = SettingAccessors.setting_class.validation_errors(key, value, record)
-        validation_errors.each do |message|
-          if record.respond_to?("#{key}=")
-            record.errors.add(key, message)
-          else
-            record.errors.add :base, :invalid_setting, name: key, message: message
-          end
-        end
-      end
-    end
-
-    #
     # @return [Object] the duplicated value if it is in fact duplicable. The actual value otherwise
     #
     def try_dup(value)

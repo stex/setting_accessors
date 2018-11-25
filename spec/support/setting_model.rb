@@ -22,8 +22,6 @@ module SettingModel
         validates :name,
                   uniqueness: {scope: [:assignable_type, :assignable_id]},
                   presence: true
-
-        validates_with SettingAccessors::Validator
       end
     end
   end

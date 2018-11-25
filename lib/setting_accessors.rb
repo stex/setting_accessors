@@ -12,10 +12,8 @@ require 'setting_accessors/converters/integer_converter'
 require 'setting_accessors/converters/string_converter'
 require 'setting_accessors/converters/polymorphic_converter'
 require 'setting_accessors/integration'
-require 'setting_accessors/integration_validator'
 require 'setting_accessors/internal'
 require 'setting_accessors/setting_scaffold'
-require 'setting_accessors/validator'
 
 ActiveRecord::Base.class_eval do
   include SettingAccessors::Integration
