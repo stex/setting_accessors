@@ -33,7 +33,8 @@ module SettingAccessors
     #   even if a value that's not yet persisted exists.
     #
     def [](key, skip_cached: false)
-      return @temp_settings[key.to_sym] if !skip_cached && has_key?(key)
+      return @temp_settings[key.to_sym] if !skip_cached && key?(key)
+
       value = SettingAccessors.setting_class.get(key, record)
       @temp_settings[key.to_sym] = value unless value.nil?
       value
@@ -41,8 +42,8 @@ module SettingAccessors
 
     alias_method :get, :[]
 
-    def has_key?(key)
-      @temp_settings.has_key?(key.to_sym)
+    def key?(key)
+      @temp_settings.key?(key.to_sym)
     end
 
     #
@@ -71,7 +72,7 @@ module SettingAccessors
     #
     def get_or_default(key, store_default: true, skip_cached: false)
       result = get(key, skip_cached: skip_cached)
-      return result if result || (has_key?(key) && !skip_cached)
+      return result if result || (key?(key) && !skip_cached)
 
       try_dup(SettingAccessors.setting_class.get_or_default(key, record)).tap do |value|
         set(key, value) if store_default
@@ -108,7 +109,7 @@ module SettingAccessors
       get(key)
     end
 
-    def changed_values
+    def changed_settings
       @temp_settings.select { |k, _| value_changed?(k) }
     end
 

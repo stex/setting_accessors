@@ -121,3 +121,6 @@ Style/DoubleNegation:
 # Allow unless/if blocks even for one-liners
 Style/IfUnlessModifier:
   Enabled: false
+
+Style/GuardClause:
+  Enabled: false

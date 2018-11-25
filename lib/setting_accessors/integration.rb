@@ -8,6 +8,18 @@ module SettingAccessors
       # without an ID yet
       base.after_save do
         settings.send(:persist!)
+
+        # From AR 5.1 on, #_update actually checks whether the changed "attributes" are actually
+        # table columns or not. If no actual changed columns were found, the record is not changed and
+        # only the after_* callbacks are executed.
+        # This means that the settings are persisted, but the record's +updated_at+ column is not updated.
+        #
+        # This workaround triggers a #touch on the record in case no actual column change already
+        # triggered a timestamp update.
+        #
+        # TODO: This might lead to #after_commit being triggered twice, once by #update_* and once by #touch
+        touch if @_setting_accessors_touch_assignable
+        @_setting_accessors_touch_assignable = false
       end
 
       base.extend ClassMethods
@@ -92,7 +104,13 @@ module SettingAccessors
     # @return [Hash] All changed attributes
     #
     def changed_attributes
-      super.merge(settings.changed_values)
+      super.merge(settings.changed_settings)
+    end
+
+    def _update_record(*)
+      super.tap do |affected_rows|
+        @_setting_accessors_touch_assignable = affected_rows.zero?
+      end
     end
 
     def as_json(options = {})

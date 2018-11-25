@@ -66,18 +66,64 @@ describe SettingAccessors::Integration, type: :model do
   end
 
   #----------------------------------------------------------------
-  #                            #save
+  #                        Record Persistence
   #----------------------------------------------------------------
 
   describe '#save' do
-    context 'when a normal attribute was changed' do
+    with_model 'TestModel' do
+      table do |t|
+        t.string :string_attribute
+        t.timestamps null: false
+      end
 
+      model do
+        setting_accessor :string_setting, type: :string
+      end
+    end
+
+    let!(:record) do
+      TestModel.create(string_attribute: 'string_value', string_setting: 'string_setting_value', updated_at: 1.day.ago)
+    end
+
+    shared_examples 'attribute update and touch' do |attribute_name|
+      it 'persists the record accordingly' do
+        expect(TestModel.find(record.id).send(attribute_name)).to eql 'Poiski'
+      end
+
+      it 'updates the +updated_at+ column accordingly' do
+        expect(TestModel.find(record.id).updated_at).to be_within(5.seconds).of(Time.now)
+      end
+    end
+
+    shared_examples 'attribute setter variations' do |attribute_name|
+      context 'using a normal attribute setter and #save' do
+        before(:each) do
+          record.send("#{attribute_name}=", 'Poiski')
+          record.save!
+        end
+
+        include_examples 'attribute update and touch', attribute_name
+      end
+
+      context 'using #update_attribute' do
+        before(:each) { record.update_attribute(attribute_name, 'Poiski') }
+
+        include_examples 'attribute update and touch', attribute_name
+      end
+
+      context 'using mass assignment (update_attributes)' do
+        before(:each) { record.update_attributes(attribute_name => 'Poiski') }
+
+        include_examples 'attribute update and touch', attribute_name
+      end
+    end
+
+    context 'when a normal attribute was changed' do
+      include_examples 'attribute setter variations', :string_attribute
     end
 
     context 'when only a setting was changed' do
-      context 'by assigning ' do
-
-      end
+      include_examples 'attribute setter variations', :string_setting
     end
   end
 
