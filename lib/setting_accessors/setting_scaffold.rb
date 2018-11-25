@@ -118,12 +118,12 @@ module SettingAccessors
         method_name = method.to_s
 
         if method_name.last == '='
-          set(method_name[0..-2], args.first)
-        else
-          return super(method, *args, &block) if args.size > 1
-
-          get(method_name, args.first)
+          return set(method_name[0..-2], args.first)
+        elsif args.size <= 1
+          return get(method_name, args.first)
         end
+
+        super
       end
     end
 
