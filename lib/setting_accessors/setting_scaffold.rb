@@ -114,7 +114,7 @@ module SettingAccessors
       #   #+some_cool_user+ is here an instance of ActiveRecord::Base
       #   Setting.cool_setting(some_cool_user)
       #
-      def method_missing(method, *args, &block) # rubocop:disable Style/MissingRespondToMissing
+      def method_missing(method, *args, &block)
         method_name = method.to_s
 
         if method_name.last == '='

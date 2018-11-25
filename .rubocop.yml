@@ -125,3 +125,7 @@ Style/IfUnlessModifier:
 
 Style/GuardClause:
   Enabled: false
+
+Style/MissingRespondToMissing:
+  Exclude:
+    - lib/setting_accessors/setting_scaffold.rb
