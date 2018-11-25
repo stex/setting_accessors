@@ -121,6 +121,7 @@ module SettingAccessors
           set(method_name[0..-2], args.first)
         else
           return super(method, *args, &block) if args.size > 1
+
           get(method_name, args.first)
         end
       end
