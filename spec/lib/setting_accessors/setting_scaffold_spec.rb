@@ -32,7 +32,7 @@ describe SettingAccessors::SettingScaffold, type: :model do
           expect { Setting.foo('bar', 'baz') }.to raise_error NoMethodError
         end
       end
-     end
+    end
 
     context 'when a setter is being called' do
       context 'with the new value as its argument' do
