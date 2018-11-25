@@ -19,6 +19,7 @@ module SettingAccessors
       h = hash
       keys.each do |key|
         fail NestedHashKeyNotFoundException unless h.key?(key)
+
         h = h[key]
       end
       h

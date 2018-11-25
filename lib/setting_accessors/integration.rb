@@ -89,9 +89,7 @@ module SettingAccessors
     #   #=> true
     #
     def reload(*)
-      super
-      @settings_accessor = nil
-      self
+      super.tap { @settings_accessor = nil }
     end
 
     #

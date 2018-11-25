@@ -127,33 +127,6 @@ module SettingAccessors
     end
 
     #
-    # @return [String] the localized setting name
-    #   they are stored in config/locales/settings.LOCALE.yml
-    #
-    def localized_name
-      i18n_lookup(:name)
-    end
-
-    #
-    # @return [String] the localized setting description
-    #   see #localized_name
-    #
-    def localized_description
-      i18n_lookup(:description)
-    end
-
-    #
-    # Performs an I18n lookup in the settings locale.
-    # Class based settings are store in 'settings.CLASS.NAME', globally defined settings
-    # in 'settings.global.NAME'
-    #
-    def i18n_lookup(key, options = {})
-      options[:scope] = [:settings, :global, name]
-      options[:scope] = [:settings, assignable.class.to_s.underscore, name] unless SettingAccessors::Internal.globally_defined_setting?(name)
-      I18n.t(key, options)
-    end
-
-    #
     # @return [Object] the default value for the current setting
     #
     def default_value
@@ -192,17 +165,6 @@ module SettingAccessors
 
     def converter
       @converter ||= SettingAccessors::Internal.converter(value_type)
-    end
-
-    def value_required?
-      !!validations['required']
-    end
-
-    #
-    # Accessor to the validations part of the setting's data
-    #
-    def validations
-      data['validates'] || {}
     end
 
     #

@@ -7,10 +7,8 @@ module SettingAccessors
   module Internal
     extend Helpers
 
-    class << self
-      def class_settings
-        @@class_settings ||= {}
-      end
+    def self.class_settings
+      @@class_settings ||= {}
     end
 
     #
