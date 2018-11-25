@@ -11,14 +11,14 @@ describe SettingAccessors::SettingScaffold, type: :model do
 
   describe 'method_missing' do
     context 'when a possible getter is being called' do
-      context 'with an additional argument (assignable)' do
-        let(:assignable) { User.create }
+       context 'with an additional argument (assignable)' do
+         let(:assignable) { User.create }
 
-        it 'forwards the call to Setting.get' do
-          expect(Setting).to receive(:get).with('foo', assignable)
-          Setting.foo(assignable)
-        end
-      end
+         it 'forwards the call to Setting.get' do
+           expect(Setting).to receive(:get).with('foo', assignable)
+           Setting.foo(assignable)
+         end
+       end
 
       context 'with no additional arguments' do
         it 'forwards the call to Setting.get' do
