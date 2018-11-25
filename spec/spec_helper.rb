@@ -25,6 +25,7 @@ require 'with_model'
 require 'setting_accessors'
 require_relative 'support/setting_model'
 require_relative 'support/helpers'
+require_relative 'support/matchers/converters'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate

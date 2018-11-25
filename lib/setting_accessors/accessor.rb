@@ -32,7 +32,7 @@ module SettingAccessors
     #   If set to +true+, the setting value is freshly loaded from the database,
     #   even if a value that's not yet persisted exists.
     #
-    def [](key, skip_cached: false)
+    def get(key, skip_cached: false)
       return @temp_settings[key.to_sym] if !skip_cached && key?(key)
 
       value = SettingAccessors.setting_class.get(key, record)
@@ -40,7 +40,7 @@ module SettingAccessors
       value
     end
 
-    alias_method :get, :[]
+    alias_method :[], :get
 
     def key?(key)
       @temp_settings.key?(key.to_sym)
@@ -49,13 +49,13 @@ module SettingAccessors
     #
     # Writes a setting's value
     #
-    def []=(key, val)
+    def set(key, val)
       set_value_was(key)
       set_value_before_type_cast(key, val)
       @temp_settings[key.to_sym] = SettingAccessors::Internal.converter(value_type(key)).new(val).convert
     end
 
-    alias_method :set, :[]=
+    alias_method :[]=, :set
 
     #
     # Tries to find a setting for this record.
