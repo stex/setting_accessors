@@ -9,7 +9,7 @@ module SettingAccessors
 
       argument :model_name, type: :string, default: 'Setting'
 
-      def self.next_migration_number(_)
+      def self.next_migration_number(_nbr)
         if @prev_migration_nr
           @prev_migration_nr += 1
         else
