@@ -55,8 +55,7 @@ module SettingAccessors
     # @return [SettingAccessors::Converter] A value converter for the given type
     #
     def self.converter(value_type)
-      @@converters ||= {}
-      @@converters[value_type.to_sym] ||= SettingAccessors::Converter.new(value_type)
+      Converters.const_get("#{value_type.to_s.camelize}Converter")
     end
 
     #

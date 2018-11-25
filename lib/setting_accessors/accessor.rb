@@ -51,7 +51,7 @@ module SettingAccessors
     def []=(key, val)
       set_value_was(key)
       set_value_before_type_cast(key, val)
-      @temp_settings[key.to_sym] = SettingAccessors::Internal.converter(value_type(key)).convert(val)
+      @temp_settings[key.to_sym] = SettingAccessors::Internal.converter(value_type(key)).new(val).convert
     end
 
     alias_method :set, :[]=

@@ -201,7 +201,7 @@ module SettingAccessors
     #
     def set_value(new_value)
       @original_value = new_value
-      self.value = converter.convert(new_value)
+      self.value = converter.new(new_value).convert
     end
 
     private
