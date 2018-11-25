@@ -66,10 +66,10 @@ describe SettingAccessors::Integration, type: :model do
   end
 
   #----------------------------------------------------------------
-  #                        Record Persistence
+  #                       #create_or_update
   #----------------------------------------------------------------
 
-  describe '#save' do
+  describe '#create_or_update' do
     with_model 'TestModel' do
       table do |t|
         t.string :string_attribute

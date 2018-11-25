@@ -107,10 +107,16 @@ module SettingAccessors
       super.merge(settings.changed_settings)
     end
 
-    def _update_record(*)
-      super.tap do |affected_rows|
-        # Workaround to trigger a #touch if necessary, see +after_save+ callback further up
-        if Gem.loaded_specs['activerecord'].version >= Gem::Version.create('5.1')
+    #
+    # Marks the record to be #touch'd after updating it in case no actual
+    # attributes were involved and only settings were changed.
+    # This is necessary for ActiveRecord >= 5.1 which will not perform the
+    # timestamp updates if it thinks nothing actually changed.
+    #
+    if Gem.loaded_specs['activerecord'].version >= Gem::Version.create('5.1')
+      def _update_record(*)
+        super.tap do |affected_rows|
+          # Workaround to trigger a #touch if necessary, see +after_save+ callback further up
           @_setting_accessors_touch_assignable = affected_rows.zero?
         end
       end
