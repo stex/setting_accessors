@@ -40,7 +40,7 @@ module SettingAccessors
       value
     end
 
-    alias_method :[], :get
+    alias [] get
 
     def key?(key)
       @temp_settings.key?(key.to_sym)
@@ -55,7 +55,7 @@ module SettingAccessors
       @temp_settings[key.to_sym] = SettingAccessors::Internal.converter(value_type(key)).new(val).convert
     end
 
-    alias_method :[]=, :set
+    alias []= set
 
     #
     # Tries to find a setting for this record.

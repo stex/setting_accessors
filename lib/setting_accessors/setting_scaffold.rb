@@ -37,7 +37,7 @@ module SettingAccessors
         setting_record(name, assignable).try(:value)
       end
 
-      alias_method :[], :get
+      alias [] get
 
       #
       # Tries to look the setting up using #get, if no existing setting is found,
@@ -80,7 +80,7 @@ module SettingAccessors
         end.value
       end
 
-      alias_method :[]=, :set
+      alias []= set
 
       #
       # @return [Object] the default value for the given setting
