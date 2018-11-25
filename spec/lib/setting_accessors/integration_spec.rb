@@ -132,7 +132,24 @@ describe SettingAccessors::Integration, type: :model do
   #----------------------------------------------------------------
 
   describe '#reload' do
+    with_model 'TestModel' do
+      model do
+        setting_accessor :a_string, type: :string, default: 'Oiski'
+      end
+    end
 
+    it 'refreshes settings from the database' do
+      record = TestModel.create
+      expect(record.a_string).to eql 'Oiski'
+      TestModel.find(record.id).update_attributes(a_string: 'Poiski')
+      expect { record.reload }.to change(record, :a_string).from('Oiski').to('Poiski')
+    end
+
+    it 'discards locally changed but not persisted settings' do
+      record = TestModel.create
+      record.a_string = 'Poiski'
+      expect { record.reload }.to change(record, :a_string).from('Poiski').to('Oiski')
+    end
   end
 
   #----------------------------------------------------------------
