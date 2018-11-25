@@ -20,18 +20,18 @@ describe SettingAccessors::SettingScaffold, type: :model do
          end
        end
 
-      context 'with no additional arguments' do
-        it 'forwards the call to Setting.get' do
-          expect(Setting).to receive(:get).with('foo', nil)
-          Setting.foo
-        end
-      end
+       context 'with no additional arguments' do
+         it 'forwards the call to Setting.get' do
+           expect(Setting).to receive(:get).with('foo', nil)
+           Setting.foo
+         end
+       end
 
-      context 'with more than one argument' do
-        it 'calls the original method_missing, leading to a NoMethodError' do
-          expect { Setting.foo('bar', 'baz') }.to raise_error NoMethodError
-        end
-      end
+       context 'with more than one argument' do
+         it 'calls the original method_missing, leading to a NoMethodError' do
+           expect { Setting.foo('bar', 'baz') }.to raise_error NoMethodError
+         end
+       end
     end
 
     context 'when a setter is being called' do
