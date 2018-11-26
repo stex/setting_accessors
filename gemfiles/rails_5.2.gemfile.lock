@@ -162,16 +162,16 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  appraisal (~> 2.2.0)
+  appraisal (~> 2.2)
   bundler (~> 1.6)
-  generator_spec (~> 0.9.4)
+  generator_spec (~> 0.9)
   rails (~> 5.2.0)
   rake (~> 10.4)
-  rspec (~> 3.8.0)
-  rubocop (~> 0.60.0)
+  rspec (~> 3.8)
+  rubocop (~> 0.60)
   setting_accessors!
   sqlite3 (~> 1.3)
-  with_model (~> 2.1.2)
+  with_model (~> 2.1)
 
 BUNDLED WITH
    1.17.1
