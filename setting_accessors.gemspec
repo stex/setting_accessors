@@ -25,14 +25,14 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ['>= 2.3', '< 3']
 
-  spec.add_development_dependency 'appraisal', '~> 2.2.0'
+  spec.add_development_dependency 'appraisal', '~> 2.2'
   spec.add_development_dependency 'bundler', '~> 1.6'
-  spec.add_development_dependency 'generator_spec', '~> 0.9.4'
+  spec.add_development_dependency 'generator_spec', '~> 0.9'
   spec.add_development_dependency 'rake', '~> 10.4'
-  spec.add_development_dependency 'rspec', '~> 3.8.0'
-  spec.add_development_dependency 'rubocop', '~> 0.60.0'
+  spec.add_development_dependency 'rspec', '~> 3.8'
+  spec.add_development_dependency 'rubocop', '~> 0.60'
   spec.add_development_dependency 'sqlite3', '~> 1.3'
-  spec.add_development_dependency 'with_model', '~> 2.1.2'
+  spec.add_development_dependency 'with_model', '~> 2.1'
 
   spec.add_dependency 'activemodel', ['>= 4.2', '<= 5.2']
   spec.add_dependency 'activerecord', ['>= 4.2', '<= 5.2']
