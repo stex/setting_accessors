@@ -5,6 +5,7 @@ require 'active_model/validations'
 
 require 'setting_accessors/version'
 require 'setting_accessors/helpers'
+require 'setting_accessors/accessor_generator'
 require 'setting_accessors/accessor'
 require 'setting_accessors/converters/base'
 require 'setting_accessors/converters/boolean_converter'

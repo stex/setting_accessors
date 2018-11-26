@@ -36,41 +36,9 @@ module SettingAccessors
       # @param [Hash] options
       #   Options to customize the behaviour of the generated accessor
       #
-      def setting_accessor(setting_name, options = {})
-        SettingAccessors::Internal.set_class_setting(self, setting_name, options)
-
-        setting_type = SettingAccessors::Internal.setting_value_type(setting_name, self).to_sym
-
-        # Add the setting's name to the list of setting_accessors for this class
-        SettingAccessors::Internal.add_setting_accessor_name(self, setting_name)
-
-        # Getter
-        define_method(setting_name) do
-          settings.get_or_default(setting_name)
-        end
-
-        # Getter alias for boolean settings
-        alias_method "#{setting_name}?", setting_name if setting_type == :boolean
-
-        # Setter
-        define_method("#{setting_name}=") do |new_value|
-          settings[setting_name] = new_value
-        end
-
-        # NAME_was
-        define_method("#{setting_name}_was") do
-          settings.value_was(setting_name)
-        end
-
-        # NAME_before_type_cast
-        define_method("#{setting_name}_before_type_cast") do
-          settings.value_before_type_cast(setting_name)
-        end
-
-        # NAME_changed?
-        define_method("#{setting_name}_changed?") do
-          settings.value_changed?(setting_name)
-        end
+      def setting_accessor(setting_name, **options)
+        generator = AccessorGenerator.new(setting_name, **options)
+        generator.assign_setting!(self)
       end
     end
 

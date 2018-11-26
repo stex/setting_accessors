@@ -25,6 +25,7 @@ module SettingAccessors
       else
         ensure_nested_hash!(class_settings, klass.to_s)
         class_settings[klass.to_s][setting_name.to_s] = options.deep_stringify_keys
+        add_setting_accessor_name(klass, setting_name)
       end
     end
 
