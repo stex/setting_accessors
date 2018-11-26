@@ -75,7 +75,7 @@ module SettingAccessors
       #
       def set(name, value, assignable: nil)
         (setting_record(name, assignable) || new(name: name, assignable: assignable)).tap do |setting|
-          setting.set_value(value)
+          setting.raw_value = value
           setting.save
         end.value
       end
@@ -157,16 +157,15 @@ module SettingAccessors
     # We can't use the name #value_before_type_cast here as it would
     # shadow ActiveRecord's default one - which might still be needed.
     #
-    def original_value
-      @original_value || value
+    def raw_value
+      @raw_value || value
     end
 
     #
-    # Sets the setting's value to the given one
-    # Performs automatic type casts
+    # Sets the new setting value by converting the raw value automatically.
     #
-    def set_value(new_value)
-      @original_value = new_value
+    def raw_value=(new_value)
+      @raw_value = new_value
       self.value = converter.new(new_value).convert
     end
 

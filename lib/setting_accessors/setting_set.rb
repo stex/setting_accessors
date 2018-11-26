@@ -50,7 +50,7 @@ module SettingAccessors
     # Writes a setting's value
     #
     def set(key, val)
-      set_value_was(key)
+      track_old_value(key)
       set_value_before_type_cast(key, val)
       @temp_settings[key.to_sym] = SettingAccessors::Internal.converter(value_type(key)).new(val).convert
     end
@@ -128,7 +128,7 @@ module SettingAccessors
     # Keeps a local copy of a setting's value before it was overridden.
     # Once the setting is persisted, this value is cleared.
     #
-    def set_value_was(key)
+    def track_old_value(key)
       @old_values ||= {}
 
       unless @old_values.key?(key.to_s)
