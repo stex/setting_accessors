@@ -4,7 +4,7 @@
 # Helper class to make accessing record specific settings easier
 #
 module SettingAccessors
-  class Accessor
+  class SettingSet
     include ::SettingAccessors::Helpers
 
     attr_reader :record

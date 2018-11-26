@@ -57,7 +57,7 @@ module SettingAccessors
     #   #=> true
     #
     def reload(*)
-      super.tap { @settings_accessor = nil }
+      super.tap { @settings = nil }
     end
 
     #
@@ -104,7 +104,7 @@ module SettingAccessors
     end
 
     def settings
-      @settings_accessor ||= SettingAccessors::Accessor.new(self)
+      @settings ||= SettingAccessors::SettingSet.new(self)
     end
   end
 end
