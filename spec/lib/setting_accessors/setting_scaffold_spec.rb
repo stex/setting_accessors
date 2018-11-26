@@ -11,27 +11,27 @@ describe SettingAccessors::SettingScaffold, type: :model do
 
   describe 'method_missing' do
     context 'when a possible getter is being called' do
-       context 'with an additional argument (assignable)' do
-         let(:assignable) { User.create }
+      context 'with an additional argument (assignable)' do
+        let(:assignable) { User.create }
 
-         it 'forwards the call to Setting.get' do
-           expect(Setting).to receive(:get).with('foo', assignable)
-           Setting.foo(assignable)
-         end
-       end
+        it 'forwards the call to Setting.get' do
+          expect(Setting).to receive(:get).with('foo', assignable)
+          Setting.foo(assignable)
+        end
+      end
 
-       context 'with no additional arguments' do
-         it 'forwards the call to Setting.get' do
-           expect(Setting).to receive(:get).with('foo', nil)
-           Setting.foo
-         end
-       end
+      context 'with no additional arguments' do
+        it 'forwards the call to Setting.get' do
+          expect(Setting).to receive(:get).with('foo', nil)
+          Setting.foo
+        end
+      end
 
-       context 'with more than one argument' do
-         it 'calls the original method_missing, leading to a NoMethodError' do
-           expect { Setting.foo('bar', 'baz') }.to raise_error NoMethodError
-         end
-       end
+      context 'with more than one argument' do
+        it 'calls the original method_missing, leading to a NoMethodError' do
+          expect { Setting.foo('bar', 'baz') }.to raise_error NoMethodError
+        end
+      end
     end
 
     context 'when a setter is being called' do
@@ -125,6 +125,46 @@ describe SettingAccessors::SettingScaffold, type: :model do
           expect { Setting.set('foo', 'baz', assignable: assignable) }.not_to(change { Setting.count })
           expect(setting.reload.value).to eql 'baz'
         end
+      end
+    end
+  end
+
+  #----------------------------------------------------------------
+  #                           .[]=
+  #----------------------------------------------------------------
+
+  describe '.[]=' do
+    context 'when being called without an assignable' do
+      it 'sets the global setting accordingly' do
+        expect(Setting).to receive(:set).with('foo', 'bar', assignable: nil)
+        Setting['foo'] = 'bar'
+      end
+    end
+
+    context 'when being called with an assignable' do
+      let(:assignable) { User.create }
+
+      it 'sets the assigned setting accordingly' do
+        expect(Setting).to receive(:set).with('foo', 'bar', assignable: assignable)
+        Setting['foo', assignable] = 'bar'
+      end
+    end
+
+    context 'when being used with ||=' do
+      it "sets the setting value if it doesn't exist yet" do
+        expect(Setting.foo).to be nil
+        Setting['foo'] ||= 'bar'
+        expect(Setting.foo).to eql 'bar'
+        Setting['foo'] ||= 'baz'
+        expect(Setting.foo).to eql 'bar'
+
+        assignable = User.create
+
+        expect(Setting.foo(assignable)).to be nil
+        Setting['foo', assignable] ||= 'bar'
+        expect(Setting.foo(assignable)).to eql 'bar'
+        Setting['foo', assignable] ||= 'baz'
+        expect(Setting.foo(assignable)).to eql 'bar'
       end
     end
   end

@@ -80,7 +80,15 @@ module SettingAccessors
         end.value
       end
 
-      alias []= set
+      #
+      # An alias for #set with a slightly different API.
+      # This allows the following usage:
+      #    Setting['my_setting', my_assignable] ||= new_value
+      #
+      def []=(name, *args)
+        assignable = args.size > 1 ? args.first : nil
+        set(name, args.last, assignable: assignable)
+      end
 
       #
       # @return [Object] the default value for the given setting
