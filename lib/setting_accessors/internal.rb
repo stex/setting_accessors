@@ -85,5 +85,20 @@ module SettingAccessors
       lookup_nested_hash(@@setting_accessor_names, klass.to_s) || []
     end
 
+    #
+    # Mainly a helper for #as_json calls.
+    # Evaluates the given options and determines the setting names to be returned.
+    #
+    def self.json_setting_names(klass, **options)
+      setting_names = setting_accessor_names(klass)
+
+      if options[:only]
+        setting_names & Array(options[:only]).map(&:to_s)
+      elsif options[:except]
+        setting_names - Array(options[:except]).map(&:to_s)
+      else
+        setting_names
+      end
+    end
   end
 end

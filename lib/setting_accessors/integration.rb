@@ -90,14 +90,7 @@ module SettingAccessors
 
     def as_json(options = {})
       super.tap do |json|
-        setting_names = SettingAccessors::Internal.setting_accessor_names(self.class)
-        if options[:only]
-          setting_names &= Array(options[:only]).map(&:to_s)
-        elsif options[:except]
-          setting_names -= Array(options[:except]).map(&:to_s)
-        end
-
-        setting_names.each do |setting_name|
+        SettingAccessors::Internal.json_setting_names(self.class, **options).each do |setting_name|
           json[setting_name.to_s] = send(setting_name)
         end
       end
