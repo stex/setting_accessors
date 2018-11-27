@@ -129,7 +129,7 @@ describe SettingAccessors::SettingSet do
         let(:setting_name) { :a_string }
         let(:existing_value) { 'a' }
         let(:default_value) { '' }
-        let(:new_value_suffix) { String.new('b') }
+        let(:new_value_suffix) { '' + 'b' }
         let(:mutation_proc) { -> { instance.get_or_default(setting_name) << new_value_suffix } }
       end
     end
