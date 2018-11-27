@@ -16,6 +16,8 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+require 'pry'
+require 'pry-byebug'
 require 'active_record'
 
 # Hold the test sqlite database in memory without actually creating additional files
@@ -26,6 +28,13 @@ require 'setting_accessors'
 require_relative 'support/setting_model'
 require_relative 'support/helpers'
 require_relative 'support/matchers/converters'
+
+if defined?(PryByebug)
+  Pry.commands.alias_command 'c', 'continue'
+  Pry.commands.alias_command 's', 'step'
+  Pry.commands.alias_command 'n', 'next'
+  Pry.commands.alias_command 'f', 'finish'
+end
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
