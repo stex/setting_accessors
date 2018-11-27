@@ -28,14 +28,10 @@ module SettingAccessors
     #       User1: Read Setting X -> Gets old value from temp settings.
     #   This shouldn't be too dangerous as the system state will be refreshed with every request though.
     #
-    # @param [Boolean] skip_cached
-    #   If set to +true+, the setting value is freshly loaded from the database,
-    #   even if a value that's not yet persisted exists.
-    #
-    def get(key, skip_cached: false)
-      return @temp_settings[key.to_sym] if !skip_cached && key?(key)
+    def get(key)
+      return @temp_settings[key.to_sym] if key?(key)
 
-      value = SettingAccessors.setting_class.get(key, record)
+      value = current_database_value(key)
       @temp_settings[key.to_sym] = value unless value.nil?
       value
     end
@@ -66,13 +62,9 @@ module SettingAccessors
     #   If set to +true+, the setting's default value is written to the temporary settings
     #   for faster access. Otherwise, a database lookup is performed every time.
     #
-    # @param [Boolean] skip_cached
-    #   If set to +true+, a possible temporary setting is skipped when looking up the value.
-    #   This means, the default value is returned even if there is a not yet persisted change to the setting.
-    #
-    def get_or_default(key, store_default: true, skip_cached: false)
-      result = get(key, skip_cached: skip_cached)
-      return result if result || (key?(key) && !skip_cached)
+    def get_or_default(key, store_default: true)
+      result = get(key)
+      return result if result || key?(key) # values might be nil on purpose
 
       try_dup(SettingAccessors.setting_class.get_or_default(key, record)).tap do |value|
         set(key, value) if store_default
@@ -96,7 +88,7 @@ module SettingAccessors
     def value_was(key)
       lookup_nested_hash(@old_values, key.to_s)
     rescue NestedHashKeyNotFoundException
-      get(key)
+      current_database_value(key)
     end
 
     def value_changed?(key)
@@ -115,6 +107,10 @@ module SettingAccessors
 
     protected
 
+    def current_database_value(key)
+      SettingAccessors.setting_class.get(key, record)
+    end
+
     #
     # Keeps a record of the originally set value for a setting before it was
     # automatically converted.
@@ -132,7 +128,7 @@ module SettingAccessors
       @old_values ||= {}
 
       unless @old_values.key?(key.to_s)
-        @old_values[key.to_s] = get_or_default(key, skip_cached: true, store_default: false)
+        @old_values[key.to_s] = get_or_default(key, store_default: false)
       end
     end
 
@@ -153,7 +149,7 @@ module SettingAccessors
     # validations itself.
     #
     def persist!
-      @temp_settings.each do |key, value|
+      changed_settings.each do |key, value|
         Setting.set(key, value, assignable: record)
       end
       flush!
