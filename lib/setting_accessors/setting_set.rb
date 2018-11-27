@@ -88,6 +88,7 @@ module SettingAccessors
     def value_was(key)
       lookup_nested_hash(@old_values, key.to_s)
     rescue NestedHashKeyNotFoundException
+    rescue NestedHashKeyNotFoundError
       current_database_value(key)
     end
 
