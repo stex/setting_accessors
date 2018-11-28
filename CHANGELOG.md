@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+A bugfix and slight refactoring release which takes care of several issues regarding
+changing setting-values in-place without actually setting them before. (#13)
+
+* More and better specs
+* Better handling of non-existent settings through exception handling rather than multiple error prone tests
+
 ## 1.0.0
 
 This is almost a complete refactoring of the gem which also removes some not really needed functionality.  

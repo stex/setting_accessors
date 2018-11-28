@@ -10,6 +10,7 @@ describe SettingAccessors::Converters::BooleanConverter do
   end
 
   it { is_expected.to convert(1).similar_to(TestModel.new).on(:boolean_attribute) }
+  it { is_expected.to convert(0).similar_to(TestModel.new).on(:boolean_attribute) }
   it { is_expected.to convert(1.0).similar_to(TestModel.new).on(:boolean_attribute) }
   it { is_expected.to convert('true').similar_to(TestModel.new).on(:boolean_attribute) }
   it { is_expected.to convert('false').similar_to(TestModel.new).on(:boolean_attribute) }

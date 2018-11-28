@@ -2,9 +2,6 @@
 
 module SettingAccessors
   module Helpers
-    class Error < StandardError; end
-    class NestedHashKeyNotFoundException < Error; end
-
     def ensure_nested_hash!(hash, *keys)
       h = hash
       keys.each do |key|
@@ -14,11 +11,11 @@ module SettingAccessors
     end
 
     def lookup_nested_hash(hash, *keys)
-      fail NestedHashKeyNotFoundException if hash.nil?
+      fail NestedHashKeyNotFoundError if hash.nil?
 
       h = hash
       keys.each do |key|
-        fail NestedHashKeyNotFoundException unless h.key?(key)
+        fail NestedHashKeyNotFoundError unless h.key?(key)
 
         h = h[key]
       end

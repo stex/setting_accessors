@@ -21,6 +21,10 @@ ActiveRecord::Base.class_eval do
 end
 
 module SettingAccessors
+  class Error < StandardError; end
+  class NestedHashKeyNotFoundError < Error; end
+  class SettingNotFoundError < Error; end
+
   def self.setting_class
     setting_class_name.constantize
   end
