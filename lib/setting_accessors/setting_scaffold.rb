@@ -37,6 +37,15 @@ module SettingAccessors
         setting_record(name, assignable).try(:value)
       end
 
+      #
+      # Like #get, but will raise an exception if the requested setting doesn't exist in the database
+      #
+      def get!(name, assignable = nil)
+        setting_record!(name, assignable).value
+      rescue ActiveRecord::RecordNotFound
+        raise ::SettingAccessors::SettingNotFoundError
+      end
+
       alias [] get
 
       #
@@ -46,11 +55,9 @@ module SettingAccessors
       # This only works for class-wise settings, meaning that an assignable has to be present.
       #
       def get_or_default(name, assignable)
-        if (val = get(name, assignable)).nil?
-          new(name: name, assignable: assignable).default_value
-        else
-          val
-        end
+        get!(name, assignable)
+      rescue ::SettingAccessors::SettingNotFoundError
+        get_default_value(name, assignable)
       end
 
       #
@@ -106,6 +113,14 @@ module SettingAccessors
       #
       def setting_record(name, assignable = nil)
         find_by(name: name.to_s, assignable: assignable)
+      end
+
+      #
+      # Like #setting_record, but will raise an ActiveRecord::RecordNotFound exception
+      # if the record doesn't exist yet
+      #
+      def setting_record!(name, assignable = nil)
+        setting_record(name, assignable) || raise(ActiveRecord::RecordNotFound)
       end
 
       #

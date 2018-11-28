@@ -62,7 +62,7 @@ module SettingAccessors
     #
     def self.get_class_setting(klass, setting_name)
       lookup_nested_hash(class_settings, klass.to_s, setting_name.to_s)
-    rescue ::SettingAccessors::Helpers::NestedHashKeyNotFoundError
+    rescue NestedHashKeyNotFoundError
       nil
     end
 

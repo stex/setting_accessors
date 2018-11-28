@@ -2,6 +2,7 @@
 
 describe SettingAccessors::SettingSet do
   include SettingModel
+
   with_model 'Assignable' do
     model do
       setting_accessor :a_string, type: :string, default: ''
@@ -11,14 +12,14 @@ describe SettingAccessors::SettingSet do
     end
   end
 
+  let(:assignable) { Assignable.create }
+  let(:instance) { described_class.new(assignable) }
+
   #----------------------------------------------------------------
   #                           #persist!
   #----------------------------------------------------------------
 
   describe '#persist' do
-    let(:assignable) { Assignable.create }
-    let(:instance) { described_class.new(assignable) }
-
     it 'only persists settings which were actually changed' do
       Setting.set(:a_string, 'a', assignable: assignable)
       Setting.set(:an_integer, 42, assignable: assignable)
@@ -32,13 +33,71 @@ describe SettingAccessors::SettingSet do
   end
 
   #----------------------------------------------------------------
+  #                             #set
+  #----------------------------------------------------------------
+
+  describe '#set' do
+    context 'regarding tracking the setting old value' do
+      # https://github.com/Stex/setting_accessors/issues/12#issuecomment-442158501
+      it 'ignores previous value mutations' do
+        Setting.create!(name: 'an_array', value: [21], assignable: assignable)
+        instance.get(:an_array) << 42
+        instance.set(:an_array, instance.get(:an_array))
+
+        expect(instance.value_was(:an_array)).to eql [21]
+      end
+    end
+  end
+
+  #----------------------------------------------------------------
+  #                       #value_changed?
+  #----------------------------------------------------------------
+
+  describe '#value_changed?' do
+    subject { instance.value_changed?(:an_array) }
+
+    context 'if no value was set in the current session' do
+      it { is_expected.to be false }
+    end
+
+    context 'if a value was set in the current session' do
+      context 'which overrides an existing value' do
+        before(:each) { Setting.create(name: 'an_array', value: [42], assignable: assignable) }
+
+        context 'and the values are the same' do
+          before(:each) { instance.set(:an_array, [42]) }
+
+          it { is_expected.to be false }
+        end
+
+        context 'and the values are different' do
+          before(:each) { instance.set(:an_array, [21]) }
+
+          it { is_expected.to be true }
+        end
+      end
+
+      context 'which overrides the default value' do
+        context 'but the value equals the default value' do
+          before(:each) { instance.set(:an_array, []) }
+
+          it { is_expected.to be false }
+        end
+
+        context 'and the value is different from the default value' do
+          before(:each) { instance.set(:an_array, [5]) }
+
+          it { is_expected.to be true }
+        end
+      end
+    end
+  end
+
+  #----------------------------------------------------------------
   #                         #value_was
   #----------------------------------------------------------------
 
   describe '#value_was' do
-    let(:assignable) { Assignable.create }
-    let(:instance) { described_class.new(assignable) }
-
     shared_examples 'correct value without side-effects' do
       it 'returns the value in the database' do
         expect(instance.get_or_default(setting_name)).to eql expected_new_value

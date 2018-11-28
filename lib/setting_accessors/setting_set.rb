@@ -22,18 +22,12 @@ module SettingAccessors
     # If a setting hasn't been read by this record (instance) before, its value
     # is stored in the local read set.
     #
-    # TODO: See if this causes problems with read settings not being updated by external changes.
-    #       User1: Read Setting X
-    #       User2: Update Setting X
-    #       User1: Read Setting X -> Gets old value from temp settings.
-    #   This shouldn't be too dangerous as the system state will be refreshed with every request though.
-    #
     def get(key)
       return @temp_settings[key.to_sym] if key?(key)
 
-      value = current_database_value(key)
-      @temp_settings[key.to_sym] = value unless value.nil?
-      value
+      @temp_settings[key.to_sym] = current_database_value!(key)
+    rescue SettingNotFoundError
+      nil
     end
 
     alias [] get
@@ -64,9 +58,9 @@ module SettingAccessors
     #
     def get_or_default(key, store_default: true)
       result = get(key)
-      return result if result || key?(key) # values might be nil on purpose
+      return result if key?(key) # If no key is found here, we didn't have a setting in the database
 
-      try_dup(SettingAccessors.setting_class.get_or_default(key, record)).tap do |value|
+      try_dup(default_value(key)).tap do |value|
         set(key, value) if store_default
       end
     end
@@ -87,29 +81,55 @@ module SettingAccessors
     #
     def value_was(key)
       lookup_nested_hash(@old_values, key.to_s)
-    rescue NestedHashKeyNotFoundException
     rescue NestedHashKeyNotFoundError
       current_database_value(key)
     end
 
+    #
+    # @return [Boolean] +true+ if the value for the given setting differs from the database or default value
+    #
     def value_changed?(key)
       get(key) != value_was(key)
     end
 
+    #
+    # @return [Object] The raw value passed to this setting before it was casted to the correct type
+    #
     def value_before_type_cast(key)
       lookup_nested_hash(@values_before_type_casts, key.to_s)
-    rescue NestedHashKeyNotFoundException
+    rescue NestedHashKeyNotFoundError
       get(key)
     end
 
+    #
+    # @return [Hash] the settings which were actually changed since the last persist!
+    #
     def changed_settings
       @temp_settings.select { |k, _| value_changed?(k) }
     end
 
     protected
 
+    #
+    # @return [Object] the current setting value from the database or +nil+ if the setting does not exist yet.
+    #
     def current_database_value(key)
       SettingAccessors.setting_class.get(key, record)
+    end
+
+    #
+    # Like #current_database_value, but will raise a SettingNotFound exception
+    # if there is no current database value
+    #
+    def current_database_value!(key)
+      SettingAccessors.setting_class.get!(key, record)
+    end
+
+    #
+    # @return [Object] the default value for the given setting
+    #
+    def default_value(key)
+      SettingAccessors.setting_class.get_default_value(key, record)
     end
 
     #
@@ -129,7 +149,11 @@ module SettingAccessors
       @old_values ||= {}
 
       unless @old_values.key?(key.to_s)
-        @old_values[key.to_s] = get_or_default(key, store_default: false)
+        @old_values[key.to_s] = begin
+                                  current_database_value!(key)
+                                rescue SettingNotFoundError
+                                  default_value(key)
+                                end
       end
     end
 

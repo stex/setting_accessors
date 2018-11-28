@@ -86,6 +86,49 @@ describe SettingAccessors::SettingScaffold, type: :model do
   end
 
   #----------------------------------------------------------------
+  #                           .get!
+  #----------------------------------------------------------------
+
+  describe '.get!' do
+    context 'when being called without an assignable' do
+      context 'and no setting with that name exists yet' do
+        it 'raises a SettingNotFoundError' do
+          expect { Setting.get!('foo') }.to raise_error SettingAccessors::SettingNotFoundError
+        end
+      end
+
+      context 'and a setting with that name already exists' do
+        it "returns the setting's value" do
+          Setting.create(name: 'foo', value: 'bar')
+          expect(Setting.get!('foo')).to eql 'bar'
+        end
+      end
+    end
+
+    context 'when being called with an assignable' do
+      let(:assignable) { User.create }
+      subject { Setting.get!('foo', assignable) }
+
+      before(:each) do
+        Setting.create(name: 'foo', value: 'bar')
+        Setting.create(name: 'foo', value: 'baz', assignable: User.create)
+      end
+
+      context 'and no assigned setting with that name exists yet' do
+        it 'raises a SettingNotFoundError' do
+          expect { Setting.get!('foo', assignable) }.to raise_error SettingAccessors::SettingNotFoundError
+        end
+      end
+
+      context 'and an assigned setting with that name already exists' do
+        before(:each) { Setting.create(name: 'foo', value: 'BAM', assignable: assignable) }
+
+        it { is_expected.to eql 'BAM' }
+      end
+    end
+  end
+
+  #----------------------------------------------------------------
   #                             .set
   #----------------------------------------------------------------
 
