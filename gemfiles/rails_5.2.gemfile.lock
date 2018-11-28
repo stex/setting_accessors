@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    setting_accessors (1.0.0)
+    setting_accessors (1.1.0)
       activemodel (>= 4.2, <= 5.2)
       activerecord (>= 4.2, <= 5.2)
       activesupport (>= 4.2, <= 5.2)
@@ -180,8 +180,8 @@ DEPENDENCIES
   appraisal (~> 2.2)
   bundler (~> 1.6)
   generator_spec (~> 0.9)
-  pry
-  pry-byebug
+  pry (~> 0.12)
+  pry-byebug (~> 3.6)
   rails (~> 5.2.0)
   rake (~> 10.4)
   rspec (~> 3.8)
