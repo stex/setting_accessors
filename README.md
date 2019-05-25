@@ -4,7 +4,7 @@ SettingAccessors
 [![Gem Version](https://badge.fury.io/rb/setting_accessors.svg)](http://badge.fury.io/rb/setting_accessors)
 [![Build Status](https://travis-ci.org/Stex/setting_accessors.svg?branch=master)](https://travis-ci.org/Stex/setting_accessors)
 [![Maintainability](https://api.codeclimate.com/v1/badges/78becd1d005aab2d1409/maintainability)](https://codeclimate.com/github/Stex/setting_accessors/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage)](https://codeclimate.com/github/codeclimate/codeclimate/test_coverage)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage)](https://codeclimate.com/github/Stex/setting_accessors/test_coverage)
 
 Sometimes it's handy to keep track of various settings or attributes in ActiveRecord instances and persist them through various requests (and sessions). An example would be to store a items-per-page value for multiple tables in the application per user or probably also set default sorting directions.
 
