@@ -13,7 +13,6 @@ module SettingAccessors
 
     #
     # Sets a class-specific setting
-    # For global settings, this is done in config/settings.yml
     # Please do not call this method yourself, it is done automatically
     # by using setting_accessor in your model class
     #
@@ -32,7 +31,6 @@ module SettingAccessors
     #
     # @return [Hash] configuration data regarding this setting
     #
-    #   - If it's a globally defined setting, the value is taken from config/settings.yml
     #   - If it's a setting defined in a setting_accessor call, the information is taken from this call
     #   - Otherwise, an empty hash is returned
     #

@@ -11,10 +11,6 @@ describe SettingAccessors::Generators::InstallGenerator, type: :generator do
     run_generator
   end
 
-  it 'creates the default settings.yml config file' do
-    assert_file 'config/settings.yml'
-  end
-
   it 'creates the initializer' do
     assert_file 'config/initializers/setting_accessors.rb'
   end

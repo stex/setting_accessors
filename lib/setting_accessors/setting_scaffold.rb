@@ -158,15 +158,15 @@ module SettingAccessors
     end
 
     #
-    # @return [String] the setting's type as specified in settings.yml
-    #   If the setting wasn't specified, a polymorphic type is assumed
+    # @return [String] the setting's type as specified in the setting_accessor call.
+    #   If no type was specified, a polymorphic type is assumed
     #
     def value_type
       data['type'] || 'polymorphic'
     end
 
     #
-    # @return [Object] the setting's value before it was type casted using the defined rule in settings.yml
+    # @return [Object] the setting's value before it was type casted.
     #   See #value_before_type_cast for ActiveRecord attributes
     #
     # We can't use the name #value_before_type_cast here as it would
