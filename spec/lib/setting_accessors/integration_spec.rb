@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 describe SettingAccessors::Integration, type: :model do
-  include SettingModel
 
   #----------------------------------------------------------------
   #                           #as_json

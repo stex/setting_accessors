@@ -1,4 +1,6 @@
-class Create<%= model_name.camelize.pluralize %> < ActiveRecord::Migration[4.2]
+<%- ar_version = Gem.loaded_specs['activerecord'].version -%>
+<%- version_information = ar_version >= Gem::Version.create('5.0') ? "[#{ar_version.segments.take(2).join('.')}]" : nil -%>
+class Create<%= model_name.camelize.pluralize %> < ActiveRecord::Migration<%= version_information %>
   def change
     create_table :<%= model_name.underscore.pluralize %> do |t|
       t.belongs_to :assignable, polymorphic: true

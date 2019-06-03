@@ -2,9 +2,7 @@ PATH
   remote: ..
   specs:
     setting_accessors (1.1.0)
-      activemodel (>= 4.2, < 5.3)
-      activerecord (>= 4.2, < 5.3)
-      activesupport (>= 4.2, < 5.3)
+      rails (>= 4.2, < 5.3)
 
 GEM
   remote: https://rubygems.org/
