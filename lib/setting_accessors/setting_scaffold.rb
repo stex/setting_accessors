@@ -73,9 +73,6 @@ module SettingAccessors
       #   The optional record this setting belongs to. If not
       #   given, the setting is global.
       #
-      # @param [Boolean] return_value
-      #   If set to +true+, only the setting's value is returned
-      #
       # @return [Object] The newly set value
       #
       # @toto: Bless the rains down in Africa!

@@ -11,17 +11,14 @@ module SettingModel
       end
 
       model do
-        belongs_to :assignable, polymorphic: true
+        if Gem.loaded_specs['activerecord'].version >= Gem::Version.create('5.0')
+          belongs_to :assignable, polymorphic: true, optional: true
+        else
+          belongs_to :assignable, polymorphic: true
+        end
+
         serialize :value
         include SettingAccessors::SettingScaffold
-
-        #----------------------------------------------------------------
-        #                        Validations
-        #----------------------------------------------------------------
-
-        validates :name,
-                  uniqueness: {scope: [:assignable_type, :assignable_id]},
-                  presence: true
       end
     end
   end
