@@ -58,7 +58,7 @@ RSpec.configure do |config|
   end
 
   config.after(:suite) do
-    # FileUtils.rm_rf(dummy_root)
+    FileUtils.rm_rf(dummy_root)
   end
 
   config.before(:each) do
