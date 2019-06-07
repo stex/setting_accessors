@@ -81,6 +81,8 @@ module SettingAccessors
     def self.setting_accessor_names(klass)
       @@setting_accessor_names ||= {}
       lookup_nested_hash(@@setting_accessor_names, klass.to_s) || []
+    rescue SettingAccessors::NestedHashKeyNotFoundError
+      []
     end
 
     #
