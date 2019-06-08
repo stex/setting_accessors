@@ -17,7 +17,11 @@
 #
 
 class <%= model_name.camelize %> < ActiveRecord::Base
-  belongs_to :assignable, :polymorphic => true
+  <%- if Gem.loaded_specs['activerecord'].version >= Gem::Version.create('5.0') -%>
+  belongs_to :assignable, polymorphic: true, optional: true
+  <%- else -%>
+  belongs_to :assignable, polymorphic: true
+  <%- end -%>
 
   include SettingAccessors::SettingScaffold
 end

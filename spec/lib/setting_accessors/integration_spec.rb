@@ -1,65 +1,83 @@
 # frozen_string_literal: true
 
 describe SettingAccessors::Integration, type: :model do
-  include SettingModel
 
   #----------------------------------------------------------------
   #                           #as_json
   #----------------------------------------------------------------
 
   describe '#as_json' do
-    with_model 'User' do
-      table do |t|
-        t.string :first_name
-        t.string :last_name
-        t.timestamps null: false
-      end
-
-      model do
-        setting_accessor :polymorphic_setting, type: :polymorphic, default: {}, fallback: :default
-        setting_accessor :locale, type: :string
-        setting_accessor :recently_active, type: :boolean, default: true, fallback: :default
-
-        setting_accessor :catchphrase, type: :string, fallback: 'Oiski Poiski!'
-        setting_accessor :additional_catchphrase, type: :string, fallback: :default, default: 'Kapitanski'
-
-        validates :locale, presence: true
-      end
-    end
-
-    let(:user_attributes) { {first_name: 'Sascha', last_name: 'Desman', locale: 'RU-ru'} }
-    let(:user) { User.create(user_attributes) }
-    let(:additional_attribute_names) { %w[id created_at updated_at] }
-    let(:options) { {} }
-    let(:json) { user.as_json(options) }
-    let(:settings_and_attributes) { setting_names(User) + user_attributes.keys.map(&:to_s) }
-
-    context 'when being called without options' do
-      it 'returns all attributes and all settings' do
-        settings_and_attributes.each do |name|
-          expect(json).to include(name => user.send(name))
+    context 'when not setting accessors are defined in the application' do
+      with_model 'User' do
+        table do |t|
+          t.string :first_name
+          t.string :last_name
+          t.timestamps null: false
         end
       end
-    end
 
-    context 'when being called with the :only option' do
-      let(:options) { super().merge(only: %i[first_name locale]) }
+      let(:user_attributes) { {first_name: 'Sascha', last_name: 'Desman'} }
+      let(:user) { User.create(user_attributes) }
 
-      it 'returns only the requested attributes and settings' do
-        expect(json).to eql user_attributes.slice(:first_name, :locale).stringify_keys
+      it "returns the record's attributes" do
+        expect(user.as_json).to eql(user.attributes)
       end
     end
 
-    context 'when being called with the :except option' do
-      let(:options) { super().merge(except: %w[first_name recent_activity]) }
-
-      it 'returns all attributes and settings except for the given exclusions' do
-        (settings_and_attributes - options[:except]).each do |name|
-          expect(json).to include(name => user.send(name))
+    context 'when setting accessors are defined in the application' do
+      with_model 'User' do
+        table do |t|
+          t.string :first_name
+          t.string :last_name
+          t.timestamps null: false
         end
 
-        options[:except].each do |name|
-          expect(json).not_to include(name)
+        model do
+          setting_accessor :polymorphic_setting, type: :polymorphic, default: {}, fallback: :default
+          setting_accessor :locale, type: :string
+          setting_accessor :recently_active, type: :boolean, default: true, fallback: :default
+
+          setting_accessor :catchphrase, type: :string, fallback: 'Oiski Poiski!'
+          setting_accessor :additional_catchphrase, type: :string, fallback: :default, default: 'Kapitanski'
+
+          validates :locale, presence: true
+        end
+      end
+
+      let(:user_attributes) { {first_name: 'Sascha', last_name: 'Desman', locale: 'RU-ru'} }
+      let(:user) { User.create(user_attributes) }
+      let(:additional_attribute_names) { %w[id created_at updated_at] }
+      let(:options) { {} }
+      let(:json) { user.as_json(options) }
+      let(:settings_and_attributes) { setting_names(User) + user_attributes.keys.map(&:to_s) }
+
+      context 'when being called without options' do
+        it 'returns all attributes and all settings' do
+          settings_and_attributes.each do |name|
+            expect(json).to include(name => user.send(name))
+          end
+        end
+      end
+
+      context 'when being called with the :only option' do
+        let(:options) { super().merge(only: %i[first_name locale]) }
+
+        it 'returns only the requested attributes and settings' do
+          expect(json).to eql user_attributes.slice(:first_name, :locale).stringify_keys
+        end
+      end
+
+      context 'when being called with the :except option' do
+        let(:options) { super().merge(except: %w[first_name recent_activity]) }
+
+        it 'returns all attributes and settings except for the given exclusions' do
+          (settings_and_attributes - options[:except]).each do |name|
+            expect(json).to include(name => user.send(name))
+          end
+
+          options[:except].each do |name|
+            expect(json).not_to include(name)
+          end
         end
       end
     end

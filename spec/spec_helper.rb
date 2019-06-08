@@ -20,26 +20,53 @@ require 'simplecov'
 SimpleCov.start
 
 require 'pry'
-require 'pry-byebug'
 require 'active_record'
+require 'rails/generators'
 
 # Hold the test sqlite database in memory without actually creating additional files
 ActiveRecord::Base.establish_connection adapter: 'sqlite3', database: ':memory:'
 
 require 'with_model'
+require 'fileutils'
 require 'setting_accessors'
-require_relative 'support/setting_model'
+require 'generators/setting_accessors/install_generator'
 require_relative 'support/helpers'
 require_relative 'support/matchers/converters'
 
-if defined?(PryByebug)
-  Pry.commands.alias_command 'c', 'continue'
-  Pry.commands.alias_command 's', 'step'
-  Pry.commands.alias_command 'n', 'next'
-  Pry.commands.alias_command 'f', 'finish'
-end
+dummy_root = File.expand_path('support/dummy', __dir__)
 
 RSpec.configure do |config|
+  config.before(:suite) do
+    # Make sure we have an actual migration based on the current Rails version
+    FileUtils.rm_rf(dummy_root)
+    SettingAccessors::Generators::InstallGenerator.start([], destination_root: dummy_root)
+
+    # Now, create an actual "settings" table using the normal migration behavior
+    if Helpers.min_ar_version('5.2')
+      ActiveRecord::MigrationContext.new(File.expand_path('support/dummy/db/migrate', __dir__)).migrate
+    else
+      ActiveRecord::Migrator.migrate File.expand_path('support/dummy/db/migrate', __dir__)
+    end
+
+    # Emulate the Rails >= 5.0 behavior that each belongs_to association automatically
+    # gets a presence validation if not explicitly disabled with `optional: true`.
+    # This is normally done by the Rails application
+    ActiveRecord::Base.belongs_to_required_by_default = true if Helpers.min_ar_version('5.0')
+
+    # As we generated our setting class, we may now use it
+    require 'support/dummy/app/models/setting'
+  end
+
+  config.after(:suite) do
+    FileUtils.rm_rf(dummy_root)
+  end
+
+  config.before(:each) do
+    # Make sure our settings table is empty.
+    # For other test models, with_model takes care of this.
+    Setting.delete_all
+  end
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

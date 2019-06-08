@@ -13,7 +13,6 @@ module SettingAccessors
 
     #
     # Sets a class-specific setting
-    # For global settings, this is done in config/settings.yml
     # Please do not call this method yourself, it is done automatically
     # by using setting_accessor in your model class
     #
@@ -32,7 +31,6 @@ module SettingAccessors
     #
     # @return [Hash] configuration data regarding this setting
     #
-    #   - If it's a globally defined setting, the value is taken from config/settings.yml
     #   - If it's a setting defined in a setting_accessor call, the information is taken from this call
     #   - Otherwise, an empty hash is returned
     #
@@ -83,6 +81,8 @@ module SettingAccessors
     def self.setting_accessor_names(klass)
       @@setting_accessor_names ||= {}
       lookup_nested_hash(@@setting_accessor_names, klass.to_s) || []
+    rescue SettingAccessors::NestedHashKeyNotFoundError
+      []
     end
 
     #
