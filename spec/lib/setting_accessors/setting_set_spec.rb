@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 describe SettingAccessors::SettingSet do
-  include SettingModel
-
   with_model 'Assignable' do
     model do
       setting_accessor :a_string, type: :string, default: ''

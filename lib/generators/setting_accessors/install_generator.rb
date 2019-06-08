@@ -20,7 +20,6 @@ module SettingAccessors
 
       desc 'Installs everything necessary'
       def create_install
-        template 'settings.yml', 'config/settings.yml'
         template 'model.rb.erb', "app/models/#{model_name.classify.underscore}.rb"
         migration_template 'migration.rb.erb', "db/migrate/create_#{model_name.classify.underscore.pluralize}.rb"
 

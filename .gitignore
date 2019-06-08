@@ -24,6 +24,4 @@ mkmf.log
 # RVM
 .ruby-version
 
-#Dummy Application
-test/dummy/log
-test/dummy/db/development.sqlite3
+spec/support/dummy
