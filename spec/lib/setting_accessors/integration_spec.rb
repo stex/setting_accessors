@@ -96,11 +96,29 @@ describe SettingAccessors::Integration, type: :model do
 
       model do
         setting_accessor :string_setting, type: :string
+
+        before_update :i_hate_johns, if: :johns_here
+
+        def johns_here
+          string_attribute == 'john'
+        end
+
+        def i_hate_johns
+          throw(:abort)
+        end
       end
     end
 
     let!(:record) do
       TestModel.create(string_attribute: 'string_value', string_setting: 'string_setting_value', updated_at: 1.day.ago)
+    end
+
+    context 'when an update is not valid and aborted using the abort symbol' do
+      let(:update) { -> { record.update_attributes(string_attribute: 'john') } }
+
+      it 'does not raise an error' do
+        expect(update).not_to raise_error
+      end
     end
 
     shared_examples 'attribute update and touch' do |attribute_name|
