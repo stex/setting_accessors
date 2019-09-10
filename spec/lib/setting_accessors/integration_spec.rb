@@ -104,7 +104,8 @@ describe SettingAccessors::Integration, type: :model do
         end
 
         def i_hate_johns
-          throw(:abort)
+          Gem.loaded_specs['activerecord'].version >= Gem::Version.create('5.1') &&
+            throw(:abort)
         end
       end
     end
