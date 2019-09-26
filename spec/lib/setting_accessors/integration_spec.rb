@@ -128,7 +128,7 @@ describe SettingAccessors::Integration, type: :model do
 
     shared_examples 'no touch' do
       it 'does not alter the +updated_at+ column' do
-        expect(TestModel.find(record.id).updated_at).to eql initial_updated_at
+        expect(TestModel.find(record.id).updated_at.to_i).to eql initial_updated_at.to_i
       end
     end
 
