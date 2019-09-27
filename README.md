@@ -197,6 +197,15 @@ validates :my_string, presence: true
 validates :my_number, numericality: {only_integer: true}
 ```
 
+Contributors
+------------
+
+<a href="https://github.com/stex/setting_accessors/graphs/contributors">
+  <img src="https://contributors-img.firebaseapp.com/image?repo=stex/setting_accessors" />
+</a>
+
+Made with [contributors-img](https://contributors-img.firebaseapp.com).
+
 Contributing
 ------------
 

@@ -1,6 +1,17 @@
 # Changelog
 
-## 1.2.0
+## [2.0.0] - 2019-09-27
+
+New major version as the change to the `touch` behavior might break existing apps
+and therefore is not backwards compatible.
+
+### Fixed
+
+- For AR >= 5.1, records are no longer `touch`ed after saving if
+  - [#19] the lifecycle was halted using `throw(:abort)` (props to @Haniyya)
+  - [#20] neither attributes nor settings were changed (basically `Model.first.save`)
+
+## [1.2.0]
 
 This is a major bugfix release as the gem was basically broken when being installed in a fresh Rails 5 application.
 
@@ -20,7 +31,7 @@ This is a major bugfix release as the gem was basically broken when being instal
 * Calls to `#as_json` as well as probably other parts of the AR API would fail if the gem was only included
   but not used (#17)
 
-## 1.1.0
+## [1.1.0]
 
 A bugfix and slight refactoring release which takes care of several issues regarding
 changing setting-values in-place without actually setting them before. (#13)
@@ -28,7 +39,7 @@ changing setting-values in-place without actually setting them before. (#13)
 * More and better specs
 * Better handling of non-existent settings through exception handling rather than multiple error prone tests
 
-## 1.0.0
+## [1.0.0]
 
 This is almost a complete refactoring of the gem which also removes some not really needed functionality.  
 It is the first release fully compatible with Rails 5.  
@@ -65,6 +76,6 @@ New minimum versions:
 * `setting_accessor` no longer supports the `fallback` option.  
    If a `default` option is given, it is automatically used as fallback.
 
-## 0.3.0
+## [0.3.0]
 
 * Fixed a bug that caused setting accessors not being initialized when being called as part of a rake task chain (#6)
