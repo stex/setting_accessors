@@ -110,16 +110,10 @@ describe SettingAccessors::Integration, type: :model do
       end
     end
 
+    let(:initial_updated_at) { 1.day.ago }
+
     let!(:record) do
-      TestModel.create(string_attribute: 'string_value', string_setting: 'string_setting_value', updated_at: 1.day.ago)
-    end
-
-    context 'when an update is not valid and aborted using the abort symbol' do
-      let(:update) { -> { record.update_attributes(string_attribute: 'john') } }
-
-      it 'does not raise an error' do
-        expect(update).not_to raise_error
-      end
+      TestModel.create(string_attribute: 'string_value', string_setting: 'string_setting_value', updated_at: initial_updated_at)
     end
 
     shared_examples 'attribute update and touch' do |attribute_name|
@@ -129,6 +123,12 @@ describe SettingAccessors::Integration, type: :model do
 
       it 'updates the +updated_at+ column accordingly' do
         expect(TestModel.find(record.id).updated_at).to be_within(5.seconds).of(Time.now)
+      end
+    end
+
+    shared_examples 'no touch' do
+      it 'does not alter the +updated_at+ column' do
+        expect(TestModel.find(record.id).updated_at.to_i).to eql initial_updated_at.to_i
       end
     end
 
@@ -148,10 +148,24 @@ describe SettingAccessors::Integration, type: :model do
         include_examples 'attribute update and touch', attribute_name
       end
 
-      context 'using mass assignment (update_attributes)' do
+      context 'using mass assignment (#update_attributes)' do
         before(:each) { record.update_attributes(attribute_name => 'Poiski') }
 
         include_examples 'attribute update and touch', attribute_name
+      end
+    end
+
+    context 'when nothing was changed at all' do
+      context 'and using #save' do
+        before(:each) { record.save! }
+
+        include_examples 'no touch'
+      end
+
+      context 'and using mass assignment (#update_attributes)' do
+        before(:each) { record.update_attributes({}) }
+
+        include_examples 'no touch'
       end
     end
 
@@ -161,6 +175,16 @@ describe SettingAccessors::Integration, type: :model do
 
     context 'when only a setting was changed' do
       include_examples 'attribute setter variations', :string_setting
+    end
+
+    context 'when an update is not valid and aborted using the abort symbol' do
+      before(:each) { record.update_attributes(string_attribute: 'john', string_setting: 'jane') }
+
+      it 'does not alter setting values' do
+        expect(record.reload.string_setting).to eql 'string_setting_value'
+      end
+
+      include_examples 'no touch'
     end
   end
 

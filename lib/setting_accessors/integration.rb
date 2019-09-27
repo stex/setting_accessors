@@ -82,10 +82,12 @@ module SettingAccessors
     if Gem.loaded_specs['activerecord'].version >= Gem::Version.create('5.1')
       def _update_record(*)
         super.tap do |affected_rows|
-          # Workaround to trigger a #touch if necessary, see +after_save+ callback further up
           # The callback chain can, if a filter was provided for a certain callback and the callback throws and :abort,
           # return +false+ instead of a number so we have to address both cases here.
-          @_setting_accessors_touch_assignable = (affected_rows == false) || affected_rows.zero?
+          unless affected_rows == false
+            # Workaround to trigger a #touch if necessary, see +after_save+ callback further up
+            @_setting_accessors_touch_assignable = affected_rows.zero? && settings.changed_settings.present?
+          end
         end
       end
     end
