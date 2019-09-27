@@ -16,7 +16,7 @@ and ActiveRecord integration to add virtual columns to models without having to 
 Version Information / Backwards Compatibility
 ---------------------------------------------
 
-The current version (1.x) is only compatible with Ruby >= 2.3 and Rails >= 4.2.  
+The current version (2.x) is only compatible with Ruby >= 2.3 and Rails >= 4.2.  
 Versions 0.x support older versions of both Ruby and Rails. 
 
 Version 0.x also supported validations and type conversions for globally defined settings
@@ -196,6 +196,15 @@ setting_accessor :my_number, type: :integer
 validates :my_string, presence: true
 validates :my_number, numericality: {only_integer: true}
 ```
+
+Contributors
+------------
+
+<a href="https://github.com/stex/setting_accessors/graphs/contributors">
+  <img src="https://contributors-img.firebaseapp.com/image?repo=stex/setting_accessors" />
+</a>
+
+Made with [contributors-img](https://contributors-img.firebaseapp.com).
 
 Contributing
 ------------
